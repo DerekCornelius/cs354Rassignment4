@@ -44,10 +44,12 @@ public class MasterScript : MonoBehaviour {
 
 					// BORDER WALL GENERATION
 
+					float yOffset = ((wallHeight / 2) * scale) + (y * wallHeight * scale); 
+
 					// Create 0 degree walls on borders
 					if (z == 0) {
 						cell.walls[0] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x, ((wallHeight / 2) * scale) * (y + 1), spacing * z - (spacing / 2)), 
+														 new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2)), 
 														 Quaternion.Euler(0, 0, 0));
 						cell.walls[0].transform.parent = cellObj.transform;
 						cell.walls[0].transform.localScale *= scale;
@@ -56,7 +58,7 @@ public class MasterScript : MonoBehaviour {
 					// Create 90 degree walls on borders
 					if (x == 0) {
 						cell.walls[1] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x - (spacing / 2), ((wallHeight / 2) * scale) * (y + 1), spacing * z), 
+														 new Vector3 (spacing * x - (spacing / 2), yOffset, spacing * z), 
 														 Quaternion.Euler(0, 90, 0));
 						cell.walls[1].transform.parent = cellObj.transform;
 						cell.walls[1].transform.localScale *= scale;
@@ -65,7 +67,7 @@ public class MasterScript : MonoBehaviour {
 					// Create 180 degree walls on borders
 					if (z == floorSize - 1) {
 						cell.walls[2] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x, ((wallHeight / 2) * scale) * (y + 1), spacing * z + (spacing / 2)), 
+														 new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2)), 
 														 Quaternion.Euler(0, 180, 0));
 						cell.walls[2].transform.parent = cellObj.transform;
 						cell.walls[2].transform.localScale *= scale;
@@ -74,7 +76,7 @@ public class MasterScript : MonoBehaviour {
 					// Create 270 degree walls on borders
 					if (x == floorSize - 1) {
 						cell.walls[3] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x + (spacing / 2), ((wallHeight / 2) * scale) * (y + 1), spacing * z), 
+														 new Vector3 (spacing * x + (spacing / 2), yOffset, spacing * z), 
 														 Quaternion.Euler(0, 270, 0));
 						cell.walls[3].transform.parent = cellObj.transform;
 						cell.walls[3].transform.localScale *= scale;
@@ -85,7 +87,7 @@ public class MasterScript : MonoBehaviour {
 
 					// Create floor tile per cell
 					cell.floor = (GameObject) Instantiate (floor[0], 
-													  	   new Vector3 (spacing * x, 0, spacing * z), 
+						new Vector3 (spacing * x, wallHeight * scale * y, spacing * z), 
 														   floor[0].transform.rotation);
 					cell.floor.transform.parent = cellObj.transform;
 					cell.floor.transform.localScale *= scale;
@@ -135,6 +137,10 @@ public class MasterScript : MonoBehaviour {
 
 
 						//Get neighboring cell by random number
+
+						float yOffset = ((wallHeight / 2) * scale) + (y * wallHeight * scale); 
+
+
 						if (random == 0)
 							if (x == 0) {
 								testCell = cells[x + 1, y, z];
@@ -179,10 +185,10 @@ public class MasterScript : MonoBehaviour {
 						if (testCell.getNumWalls () < 2) {
 
 							if (directionality == 0) {
-								Debug.Log ("A match was found for d:" + directionality);
+								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[0] = testCell.walls[2] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x, ((wallHeight / 2) * scale) * (y + 1), spacing * z - (spacing / 2)), 
+														 new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2)), 
 														 Quaternion.Euler(0, 0, 0));
 								cells[x, y, z].walls[0].transform.parent = cells[x, y, z].cellObj.transform;
 								cells[x, y, z].walls[0].transform.localScale *= scale;
@@ -190,10 +196,10 @@ public class MasterScript : MonoBehaviour {
 							}
 
 							else if (directionality == 1) {
-								Debug.Log ("A match was found for d:" + directionality);
+								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[1] = testCell.walls[3] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x - (spacing / 2), ((wallHeight / 2) * scale) * (y + 1), spacing * z), 
+														 new Vector3 (spacing * x - (spacing / 2), yOffset, spacing * z), 
 														 Quaternion.Euler(0, 90, 0));
 								cells[x, y, z].walls[1].transform.parent = cells[x, y, z].cellObj.transform;
 								cells[x, y, z].walls[1].transform.localScale *= scale;
@@ -201,10 +207,10 @@ public class MasterScript : MonoBehaviour {
 							}
 
 							else if (directionality == 2) {
-								Debug.Log ("A match was found for d:" + directionality);
+								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[2] = testCell.walls[0] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x, ((wallHeight / 2) * scale) * (y + 1), spacing * z + (spacing / 2)), 
+														 new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2)), 
 														 Quaternion.Euler(0, 180, 0));
 								cells[x, y, z].walls[2].transform.parent = cells[x, y, z].cellObj.transform;
 								cells[x, y, z].walls[2].transform.localScale *= scale;
@@ -212,10 +218,10 @@ public class MasterScript : MonoBehaviour {
 							}
 
 							else if (directionality == 3) {
-								Debug.Log ("A match was found for d:" + directionality);
+								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[3] = testCell.walls[1] = (GameObject) Instantiate (wall[0], 
-														 new Vector3 (spacing * x + (spacing / 2), ((wallHeight / 2) * scale) * (y + 1), spacing * z), 
+														 new Vector3 (spacing * x + (spacing / 2), yOffset, spacing * z), 
 														 Quaternion.Euler(0, 90, 0));
 								cells[x, y, z].walls[3].transform.parent = cells[x, y, z].cellObj.transform;
 								cells[x, y, z].walls[3].transform.localScale *= scale;
