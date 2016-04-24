@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
 
 public class MasterScript : MonoBehaviour {
 
+	public bool enableCeilings;
 	public float scale;
 	public int floorSize;
 	public int numFloors;
 	public GameObject player;
+	public GameObject[] ceiling;
 	public GameObject[] floor;
 	public GameObject[] wall;
 
@@ -33,13 +37,15 @@ public class MasterScript : MonoBehaviour {
 
 	            	// CELL GENERATION
 
-	            	Cell cell = new Cell ();
+	            	Cell cell = new Cell (x, y, z);
 					cells[x, y, z] = cell;
 	            	cell.pos = new Vector3 (x, y, z); 
 
 					GameObject cellObj = new GameObject ();
-					cellObj.name = "Cell " + x + " " + z;
+					cellObj.name = "Cell (" + x + ", " + y + ", " + z + ")";
 					cell.cellObj = cellObj;
+					cellObj.transform.parent = floors.transform;
+
 
 
 					// BORDER WALL GENERATION
@@ -94,6 +100,18 @@ public class MasterScript : MonoBehaviour {
 
 
 					cellObj.transform.parent = floors.transform;
+
+					// Ceiling GENERATION
+
+					// Create ceiling tile per cell
+					if (enableCeilings) {
+						cell.ceiling = (GameObject) Instantiate (ceiling[0], 
+						new Vector3 (spacing * x, wallHeight * scale * (y + 1), spacing * z), 
+									 ceiling[0].transform.rotation);
+						cell.ceiling.transform.parent = cellObj.transform;
+						cell.ceiling.transform.localScale *= scale;
+					}
+
 	            }
 	        }
 		}
@@ -102,7 +120,13 @@ public class MasterScript : MonoBehaviour {
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
-		player.name = "Player";   
+		player.name = "Player"; 
+
+
+		//Thread t = new Thread (EnclosureCheck);
+		//t.Start();
+		EnclosureCheck ();
+
 	}
 
 
@@ -236,6 +260,114 @@ public class MasterScript : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+
+	// Checks to make sure there aren't any rectangular enclosed areas
+	void EnclosureCheck () {
+
+		for (int y = 0; y < numFloors; y++){			
+			for (int x = 0; x < floorSize; x++) {
+	            for (int z = 0; z < floorSize; z++) {
+
+	            	
+					if (cells[x,y,z].walls[1] && cells[x,y,z].walls[2])
+					{
+						bool possibleEnclosure = true;
+						Cell start = cells[x,y,z];
+						//cells[x,y,z].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+						int xCoord = x;
+						int zCoord = z;
+						int curCorners = 1;
+
+						start.floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 1);
+
+
+						while (possibleEnclosure)
+						{
+							if (xCoord != x || zCoord != z)
+								cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+
+							if (curCorners == 1) {
+								if (cells[xCoord, y, zCoord].walls[2] != null && cells[xCoord, y, zCoord].walls[3] == null && xCoord + 1 < floorSize) {
+									++xCoord;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[2] != null && cells[xCoord, y, zCoord].walls[3] != null) {
+									++curCorners;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[2] == null) {
+									possibleEnclosure = false;
+									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									break;
+								}
+							}
+
+							if (curCorners == 2) {
+								if (cells[xCoord, y, zCoord].walls[3] != null && cells[xCoord, y, zCoord].walls[0] == null && zCoord - 1 >= 0) {
+									--zCoord;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[3] != null && cells[xCoord, y, zCoord].walls[0] != null) {
+									++curCorners;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[3] == null) {
+									possibleEnclosure = false;
+									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									break;
+								}
+							}
+
+							if (curCorners == 3) {
+								if (cells[xCoord, y, zCoord].walls[0] != null && cells[xCoord, y, zCoord].walls[1] == null && xCoord - 1 >= 0) {
+									--xCoord;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[0] != null && cells[xCoord, y, zCoord].walls[1] != null) {
+									++curCorners;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[0] == null) {
+									possibleEnclosure = false;
+									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									break;
+								}
+							}
+
+							if (curCorners == 4) {
+								if (cells[xCoord, y, zCoord].walls[1] != null && cells[xCoord, y, zCoord].walls[2] == null && zCoord + 1 < floorSize) {
+									++zCoord;
+									continue;
+								}
+								else if (cells[xCoord, y, zCoord].walls[1] != null && cells[xCoord, y, zCoord].walls[2] != null) {
+									if (cells[xCoord, y, zCoord] == cells[x, y, z]) {
+										Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
+										cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+										break;
+									}
+									else
+									{
+										possibleEnclosure = false;
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
+										break;
+									}
+								}
+								else if (cells[xCoord, y, zCoord].walls[1] == null) {
+									possibleEnclosure = false;
+									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									break;
+								}
+							}
+						}
+
+					}
+	            }
+         	}
+        }
+
 	}
 
 
