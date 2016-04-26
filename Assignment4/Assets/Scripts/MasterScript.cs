@@ -18,8 +18,81 @@ public class MasterScript : MonoBehaviour {
 	private float spacing;
 	private float wallHeight;
 
+	// temp attempt hee hee
+	//just highlights tiles in a breadth-first search to see how it looks
+	public void breadthFirstSearch(int sX, int sY, int sZ) { //the s is for Starting
+		/* SICKEST CODE I EVER WROTE
+		for (int i = 0; i < 4; i++) {
+			if (cells [rX, rY, rZ].walls [i] == null) {
+				breadthFirstSearch( depth + 1, (rX + ((i - 2) * i % 2)), rY, (rZ + ((i - 1) * (i % 2 - 1) * -1) ) );
+			}
+		}
+		*/
+
+		Queue<Cell> Q = new Queue<Cell>();
+		Cell root = cells [sX, sY, sZ];
+		root.depth = 0;
+		Q.Enqueue(root);
+
+		while (Q.Count != 0) {
+			Cell curCell = Q.Dequeue ();
+
+			float colorByDepth = (float) 1 - ((float) .05 * curCell.depth);
+			curCell.floor.GetComponent<MeshRenderer>().material.color = new Color (colorByDepth, 0, 0);
+
+			int nX = curCell.index[0];
+			int nY = curCell.index[1];
+			int nZ = curCell.index[2];
+
+			if (curCell.walls [0] == null) {
+				Cell next = cells [nX, nY, nZ - 1];
+				if (next.depth == -1) {
+					next.depth = curCell.depth + 1;
+					Q.Enqueue (next);
+				}
+			}
+			if (curCell.walls [1] == null) {
+				Cell next = cells [nX - 1, nY, nZ];
+				if (next.depth == -1) {
+					next.depth = curCell.depth + 1;
+					Q.Enqueue (next);
+				}
+			}
+			if (curCell.walls [2] == null) {
+				Cell next = cells [nX, nY, nZ + 1];
+				if (next.depth == -1) {
+					next.depth = curCell.depth + 1;
+					Q.Enqueue (next);
+				}
+			}
+			if (curCell.walls [3] == null) {
+				Cell next = cells [nX + 1, nY, nZ];
+				if (next.depth == -1) {
+					next.depth = curCell.depth + 1;
+					Q.Enqueue (next);
+				}
+			}
+
+		}
+
+		/*
+		Cell curCell = cells [rX, rY, rZ];
+
+		if (curCell.depth > -1)
+			return;
+		
+		curCell.depth = depth;
+		float colorByDepth = (float) 1 - ((float) .01 * depth);
+		curCell.floor.GetComponent<MeshRenderer>().material.color = new Color (colorByDepth, 0, 0);
+		*/
+
+		
+	}
+
 	// Use this for initialization
 	void Start () {
+
+		floorSize = 10;
 
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
 		cells = new Cell[floorSize, numFloors, floorSize];
@@ -126,6 +199,8 @@ public class MasterScript : MonoBehaviour {
 		//Thread t = new Thread (EnclosureCheck);
 		//t.Start();
 		EnclosureCheck ();
+
+		breadthFirstSearch (0, 0, 0);
 
 	}
 

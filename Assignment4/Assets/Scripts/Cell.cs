@@ -1,9 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
+public enum c_type { HALLWAY, ROOM };
+
 public class Cell : MonoBehaviour {
 
 	public Vector3 pos;
+	//Derek added these
+	public c_type cellType;
+	public int depth = -1;
 
 	/*
 	Wall array index by orientation:
@@ -41,6 +47,8 @@ public class Cell : MonoBehaviour {
 		index[0] = x;
 		index[1] = y;
 		index[2] = z;
+
+		cellType = c_type.HALLWAY;
 	}
 
 
