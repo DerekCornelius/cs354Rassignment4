@@ -133,8 +133,6 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		floorSize = 50;
-
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
 		cells = new Cell[floorSize, numFloors, floorSize];
 		
@@ -236,12 +234,9 @@ public class MasterScript : MonoBehaviour {
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
 		player.name = "Player"; 
 
+		EnclosureCheck (false);
 
-		//Thread t = new Thread (EnclosureCheck);
-		//t.Start();
-		EnclosureCheck ();
-
-		breadthFirstSearch (0, 0, 0);
+		//breadthFirstSearch (0, 0, 0);
 
 	}
 
@@ -380,7 +375,7 @@ public class MasterScript : MonoBehaviour {
 
 
 	// Checks to make sure there aren't any rectangular enclosed areas
-	void EnclosureCheck () {
+	void EnclosureCheck (bool debug) {
 
 		for (int y = 0; y < numFloors; y++){			
 			for (int x = 0; x < floorSize; x++) {
@@ -396,12 +391,13 @@ public class MasterScript : MonoBehaviour {
 						int zCoord = z;
 						int curCorners = 1;
 
-						start.floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 1);
+						if (debug)
+							start.floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 1);
 
 
 						while (possibleEnclosure)
 						{
-							if (xCoord != x || zCoord != z)
+							if ((xCoord != x || zCoord != z) && debug)
 								cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
 
 							if (curCorners == 1) {
@@ -415,7 +411,8 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[2] == null) {
 									possibleEnclosure = false;
-									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									if (debug)
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
 									break;
 								}
 							}
@@ -431,7 +428,8 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[3] == null) {
 									possibleEnclosure = false;
-									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									if (debug)
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
 									break;
 								}
 							}
@@ -447,7 +445,8 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[0] == null) {
 									possibleEnclosure = false;
-									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									if (debug)
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
 									break;
 								}
 							}
@@ -458,7 +457,10 @@ public class MasterScript : MonoBehaviour {
 									continue;
 								}
 								else if (cells[xCoord, y, zCoord].walls[1] != null && cells[xCoord, y, zCoord].walls[2] != null) {
-									if (cells[xCoord, y, zCoord] == cells[x, y, z]) {
+									if (cells[xCoord, y, zCoord].Equals(cells[x, y, z])) {
+										Debug.Assert(xCoord == x && zCoord == z);
+										if (debug)
+											Debug.Log ("cells[" + xCoord + ", " + y + ", " + zCoord + "] == cells(" + x + ", " + y + ", " + z + ")");
 										Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
 										cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
 										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
@@ -467,13 +469,15 @@ public class MasterScript : MonoBehaviour {
 									else
 									{
 										possibleEnclosure = false;
-										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
+										if (debug)
+											cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
 										break;
 									}
 								}
 								else if (cells[xCoord, y, zCoord].walls[1] == null) {
 									possibleEnclosure = false;
-									cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
+									if (debug)
+										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 1, 0);
 									break;
 								}
 							}

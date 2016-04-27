@@ -63,6 +63,17 @@ public class Cell : MonoBehaviour {
 		return counter;
 	}
 
+	public override bool Equals (object obj)
+	{
+		if (obj == null)
+			return false;
+		else
+			return (index[0] == ((Cell)obj).index[0]) &&
+				   (index[1] == ((Cell)obj).index[1]) && 
+				   (index[2] == ((Cell)obj).index[2]);
+	}
+
+
 
 
 	
