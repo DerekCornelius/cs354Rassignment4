@@ -35,9 +35,13 @@ public class RoomBuilder : MonoBehaviour {
 	}
 
 	private void buildThreeByThreeRoom(int floor) {
+
+		Debug.Assert (floorSize > 2);
+
 		int xRandom = Random.Range (0, floorSize - 2);
 		int zRandom = Random.Range (0, floorSize - 2);
 
+		/*
 		int attempts = 0;
 		int i = xRandom;
 		int j = zRandom;
@@ -66,6 +70,52 @@ public class RoomBuilder : MonoBehaviour {
 					m.cells [ii, floor, jj].cellType = c_type.ROOM;
 				}
 			}
+		}
+		*/
+
+
+		int attempts = 0;
+		while (attempts < 5) {
+			bool clear = true;
+			if (m.cells [xRandom, floor, zRandom].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 1, floor, zRandom].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 2, floor, zRandom].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom, floor, zRandom + 1].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 1, floor, zRandom + 1].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 2, floor, zRandom + 1].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom, floor, zRandom + 2].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 1, floor, zRandom + 2].cellType == c_type.ROOM)
+				clear = false;
+			if (m.cells [xRandom + 2, floor, zRandom + 2].cellType == c_type.ROOM)
+				clear = false;
+			if (!clear) {
+				attempts++;
+				xRandom = Random.Range (0, floorSize - 2);
+				zRandom = Random.Range (0, floorSize - 2);
+			}
+			else
+				break;
+		}
+		if (attempts > 4) {
+			Debug.Log ("Exceeded 5 attempts, room creation failed.");
+			return;
+		} else {
+			m.cells [xRandom, floor, zRandom].cellType = c_type.ROOM;
+			m.cells [xRandom + 1, floor, zRandom].cellType = c_type.ROOM;
+			m.cells [xRandom + 2, floor, zRandom].cellType = c_type.ROOM;
+			m.cells [xRandom, floor, zRandom + 1].cellType = c_type.ROOM;
+			m.cells [xRandom + 1, floor, zRandom + 1].cellType = c_type.ROOM;
+			m.cells [xRandom + 2, floor, zRandom + 1].cellType = c_type.ROOM;
+			m.cells [xRandom, floor, zRandom + 2].cellType = c_type.ROOM;
+			m.cells [xRandom + 1, floor, zRandom + 2].cellType = c_type.ROOM;
+			m.cells [xRandom + 2, floor, zRandom + 2].cellType = c_type.ROOM;
 		}
 
 
