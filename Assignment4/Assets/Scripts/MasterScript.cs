@@ -29,6 +29,8 @@ public class MasterScript : MonoBehaviour {
 		}
 		*/
 
+		const int WALL_DEPTH = 30;
+
 		Queue<Cell> Q = new Queue<Cell>();
 		Cell root = cells [sX, sY, sZ];
 		root.depth = 0;
@@ -37,18 +39,33 @@ public class MasterScript : MonoBehaviour {
 		while (Q.Count != 0) {
 			Cell curCell = Q.Dequeue ();
 
-			float colorByDepth = (float) 1 - ((float) .05 * curCell.depth);
-			curCell.floor.GetComponent<MeshRenderer>().material.color = new Color (colorByDepth, 0, 0);
+			if (curCell.depth <= WALL_DEPTH) {
+				//float colorByDepth = (float) 1 - ((float) .05 * curCell.depth);
+				//curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (colorByDepth, 0, 0);
+				curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
+			} else {
+				curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
+			}
 
 			int nX = curCell.index[0];
 			int nY = curCell.index[1];
 			int nZ = curCell.index[2];
+
+			float yOffset = ((wallHeight / 2) * scale) + (nY * wallHeight * scale); 
 
 			if (curCell.walls [0] == null) {
 				Cell next = cells [nX, nY, nZ - 1];
 				if (next.depth == -1) {
 					next.depth = curCell.depth + 1;
 					Q.Enqueue (next);
+				}
+				if (curCell.depth == WALL_DEPTH && next.depth > curCell.depth) {
+					curCell.walls[0] = (GameObject) Instantiate (wall[0], 
+						new Vector3 (spacing * nX, yOffset, spacing * nZ - (spacing / 2)), 
+						Quaternion.Euler(0, 0, 0));
+					curCell.walls[0].transform.parent = curCell.cellObj.transform;
+					curCell.walls[0].transform.localScale *= scale;
+					curCell.walls[0].GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
 				}
 			}
 			if (curCell.walls [1] == null) {
@@ -57,6 +74,14 @@ public class MasterScript : MonoBehaviour {
 					next.depth = curCell.depth + 1;
 					Q.Enqueue (next);
 				}
+				if (curCell.depth == WALL_DEPTH && next.depth > curCell.depth) {
+					curCell.walls[1] = (GameObject) Instantiate (wall[0], 
+						new Vector3 (spacing * nX - (spacing / 2), yOffset, spacing * nZ), 
+						Quaternion.Euler(0, 90, 0));
+					curCell.walls[1].transform.parent = curCell.cellObj.transform;
+					curCell.walls[1].transform.localScale *= scale;
+					curCell.walls[1].GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
+				}
 			}
 			if (curCell.walls [2] == null) {
 				Cell next = cells [nX, nY, nZ + 1];
@@ -64,12 +89,28 @@ public class MasterScript : MonoBehaviour {
 					next.depth = curCell.depth + 1;
 					Q.Enqueue (next);
 				}
+				if (curCell.depth == WALL_DEPTH && next.depth > curCell.depth) {
+					curCell.walls[2] = (GameObject) Instantiate (wall[0], 
+						new Vector3 (spacing * nX, yOffset, spacing * nZ + (spacing / 2)), 
+						Quaternion.Euler(0, 180, 0));
+					curCell.walls[2].transform.parent = curCell.cellObj.transform;
+					curCell.walls[2].transform.localScale *= scale;
+					curCell.walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
+				}
 			}
 			if (curCell.walls [3] == null) {
 				Cell next = cells [nX + 1, nY, nZ];
 				if (next.depth == -1) {
 					next.depth = curCell.depth + 1;
 					Q.Enqueue (next);
+				}
+				if (curCell.depth == WALL_DEPTH && next.depth > curCell.depth) {
+					curCell.walls[3] = (GameObject) Instantiate (wall[0], 
+						new Vector3 (spacing * nX + (spacing / 2), yOffset, spacing * nZ), 
+						Quaternion.Euler(0, 270, 0));
+					curCell.walls[3].transform.parent = curCell.cellObj.transform;
+					curCell.walls[3].transform.localScale *= scale;
+					curCell.walls[3].GetComponent<MeshRenderer>().material.color = new Color (0, 0, 1);
 				}
 			}
 
@@ -92,7 +133,7 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		floorSize = 10;
+		floorSize = 50;
 
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
 		cells = new Cell[floorSize, numFloors, floorSize];
