@@ -432,7 +432,7 @@ public class MasterScript : MonoBehaviour {
 						// Add wall to randomly picked neighbor if they also have less than two walls
 						if (testCell.getNumWalls () < 2) {
 
-							if (directionality == 0) {
+							if (directionality == 0 && testCell.walls[2] == null) {
 								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[0] = testCell.walls[2] = (GameObject) Instantiate (wall[0], 
@@ -443,7 +443,7 @@ public class MasterScript : MonoBehaviour {
 								cells[x, y, z].walls[0].name = "Rand d:" + directionality;
 							}
 
-							else if (directionality == 1) {
+							else if (directionality == 1 && testCell.walls[3] == null) {
 								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[1] = testCell.walls[3] = (GameObject) Instantiate (wall[0], 
@@ -454,7 +454,7 @@ public class MasterScript : MonoBehaviour {
 								cells[x, y, z].walls[1].name = "Rand d:" + directionality;
 							}
 
-							else if (directionality == 2) {
+							else if (directionality == 2 && testCell.walls[0] == null) {
 								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[2] = testCell.walls[0] = (GameObject) Instantiate (wall[0], 
@@ -465,7 +465,7 @@ public class MasterScript : MonoBehaviour {
 								cells[x, y, z].walls[2].name = "Rand d:" + directionality;
 							}
 
-							else if (directionality == 3) {
+							else if (directionality == 3 && testCell.walls[1] == null) {
 								//Debug.Log ("A match was found for d:" + directionality);
 
 								cells[x, y, z].walls[3] = testCell.walls[1] = (GameObject) Instantiate (wall[0], 
@@ -488,7 +488,7 @@ public class MasterScript : MonoBehaviour {
 
 
 	// Checks to make sure there aren't any rectangular enclosed areas
-	void EnclosureCheck (bool debug) {
+	void EnclosureCheck (bool debug = false) {
 
 		for (int y = 0; y < numFloors; y++){			
 			for (int x = 0; x < floorSize; x++) {
