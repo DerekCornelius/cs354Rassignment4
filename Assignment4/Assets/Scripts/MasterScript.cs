@@ -29,7 +29,7 @@ public class MasterScript : MonoBehaviour {
 		}
 		*/
 
-		const int WALL_DEPTH = 30;
+		const int WALL_DEPTH = 10;
 
 		Queue<Cell> Q = new Queue<Cell>();
 		Cell root = cells [sX, sY, sZ];
@@ -128,6 +128,74 @@ public class MasterScript : MonoBehaviour {
 		*/
 
 		
+	}
+
+
+	public void removeWalls(int tX, int tY, int tZ, int wallNum) { //4 means ALL walls
+
+		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+
+		Cell target = cells [tX, tY, tZ];
+		if ((wallNum == 0 || wallNum == 4) && tZ != 0) {
+			GameObject.Destroy (target.walls [0]);
+		}
+		if ((wallNum == 1 || wallNum == 4) && tX != 0) {
+			GameObject.Destroy (target.walls [1]);
+		}
+		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize) {
+			GameObject.Destroy (target.walls [2]);
+		}
+		if ((wallNum == 3 || wallNum == 4) && tX != floorSize) {
+			GameObject.Destroy (target.walls [3]);
+		}
+	}
+
+	public void createWalls(int tX, int tY, int tZ, int wallNum) { //4 means ALL walls
+
+		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+
+		Cell target = cells [tX, tY, tZ];
+		float yOffset = ((wallHeight / 2) * scale) + (tY * wallHeight * scale); 
+
+		if ((wallNum == 0 || wallNum == 4) && tZ != 0 && target.walls [0] == null) {
+			target.walls [0] = cells [tX, tY, tZ - 1].walls [2] = (GameObject)Instantiate (wall [0], 
+				new Vector3 (spacing * tX, yOffset, spacing * tZ - (spacing / 2)), 
+				Quaternion.Euler (0, 0, 0));
+			target.walls [0].transform.parent = target.cellObj.transform;
+			target.walls [0].transform.localScale *= scale;
+			target.walls [0].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
+		} else
+			Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
+		
+		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls [1] == null) {
+			target.walls[1] = cells[tX - 1, tY, tZ].walls[3] = (GameObject) Instantiate (wall[0], 
+				new Vector3 (spacing * tX - (spacing / 2), yOffset, spacing * tZ), 
+				Quaternion.Euler(0, 90, 0));
+			target.walls[1].transform.parent = target.cellObj.transform;
+			target.walls[1].transform.localScale *= scale;
+			target.walls[1].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
+		} else
+			Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
+		
+		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls [2] == null) {
+			target.walls[2] = cells[tX, tY, tZ + 1].walls[0] = (GameObject) Instantiate (wall[0], 
+				new Vector3 (spacing * tX, yOffset, spacing * tZ + (spacing / 2)), 
+				Quaternion.Euler(0, 180, 0));
+			target.walls[2].transform.parent = target.cellObj.transform;
+			target.walls[2].transform.localScale *= scale;
+			target.walls[2].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
+		} else
+			Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
+		
+		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls [3] == null) {
+			target.walls[3] = cells[tX + 1, tY, tZ].walls[1] = (GameObject) Instantiate (wall[0], 
+				new Vector3 (spacing * tX + (spacing / 2), yOffset, spacing * tZ), 
+				Quaternion.Euler(0, 90, 0));
+			target.walls[3].transform.parent = target.cellObj.transform;
+			target.walls[3].transform.localScale *= scale;
+			target.walls[3].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
+		} else
+			Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
 	}
 
 	// Use this for initialization
@@ -234,7 +302,12 @@ public class MasterScript : MonoBehaviour {
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
 		player.name = "Player"; 
 
+
+
 		EnclosureCheck (false);
+
+		//removeWalls (1, 0, 1, 4);
+		//createWalls (1, 0, 1, 4);
 
 		//breadthFirstSearch (0, 0, 0);
 
@@ -494,6 +567,6 @@ public class MasterScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
 }
