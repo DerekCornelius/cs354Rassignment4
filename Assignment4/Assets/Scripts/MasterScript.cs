@@ -14,9 +14,9 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] floor;
 	public GameObject[] wall;
 
-	private Cell[,,] cells;
-	private float spacing;
-	private float wallHeight;
+	public Cell[,,] cells;
+	public float spacing;
+	public float wallHeight;
 
 	// temp attempt hee hee
 	//just highlights tiles in a breadth-first search to see how it looks
@@ -131,26 +131,46 @@ public class MasterScript : MonoBehaviour {
 	}
 
 
-	public void removeWalls(int tX, int tY, int tZ, int wallNum) { //4 means ALL walls
+	public void removeWalls(int tX, int tY, int tZ, int wallNum, bool debug = false) { //4 means ALL walls
 
 		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
 
 		Cell target = cells [tX, tY, tZ];
-		if ((wallNum == 0 || wallNum == 4) && tZ != 0) {
-			GameObject.Destroy (target.walls [0]);
+		if ((wallNum == 0 || wallNum == 4) && tZ != 0 && target.walls[0] != null) {
+			if (debug) {
+				target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+			} else {
+				GameObject.Destroy (target.walls [0]);
+				target.walls [0] = cells [tX, tY, tZ - 1].walls [0] = null;
+			}
 		}
-		if ((wallNum == 1 || wallNum == 4) && tX != 0) {
-			GameObject.Destroy (target.walls [1]);
+		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls[1] != null) {
+			if (debug) {
+				target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+			} else {
+				GameObject.Destroy (target.walls [1]);
+				target.walls [1] = cells [tX - 1, tY, tZ].walls [1] = null;
+			}
 		}
-		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize) {
-			GameObject.Destroy (target.walls [2]);
+		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls[2] != null) {
+			if (debug) {
+				target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+			} else {
+				GameObject.Destroy (target.walls [2]);
+				target.walls [2] = cells [tX, tY, tZ + 1].walls [2] = null;
+			}
 		}
-		if ((wallNum == 3 || wallNum == 4) && tX != floorSize) {
-			GameObject.Destroy (target.walls [3]);
+		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls[3] != null) {
+			if (debug) {
+				target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+			} else {
+				GameObject.Destroy (target.walls [3]);
+				target.walls [3] = cells [tX + 1, tY, tZ].walls [3] = null;
+			}
 		}
 	}
 
-	public void createWalls(int tX, int tY, int tZ, int wallNum) { //4 means ALL walls
+	public void createWalls(int tX, int tY, int tZ, int wallNum, bool debug = false) { //4 means ALL walls
 
 		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
 
@@ -164,8 +184,10 @@ public class MasterScript : MonoBehaviour {
 			target.walls [0].transform.parent = target.cellObj.transform;
 			target.walls [0].transform.localScale *= scale;
 			target.walls [0].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
-		} else
-			Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
+
+			if (debug) target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+		} //else
+			//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
 		
 		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls [1] == null) {
 			target.walls[1] = cells[tX - 1, tY, tZ].walls[3] = (GameObject) Instantiate (wall[0], 
@@ -174,8 +196,10 @@ public class MasterScript : MonoBehaviour {
 			target.walls[1].transform.parent = target.cellObj.transform;
 			target.walls[1].transform.localScale *= scale;
 			target.walls[1].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
-		} else
-			Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
+
+			if (debug) target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+		} //else
+			//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
 		
 		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls [2] == null) {
 			target.walls[2] = cells[tX, tY, tZ + 1].walls[0] = (GameObject) Instantiate (wall[0], 
@@ -184,8 +208,10 @@ public class MasterScript : MonoBehaviour {
 			target.walls[2].transform.parent = target.cellObj.transform;
 			target.walls[2].transform.localScale *= scale;
 			target.walls[2].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
-		} else
-			Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
+
+			if (debug) target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+		} //else
+			//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
 		
 		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls [3] == null) {
 			target.walls[3] = cells[tX + 1, tY, tZ].walls[1] = (GameObject) Instantiate (wall[0], 
@@ -194,8 +220,10 @@ public class MasterScript : MonoBehaviour {
 			target.walls[3].transform.parent = target.cellObj.transform;
 			target.walls[3].transform.localScale *= scale;
 			target.walls[3].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
-		} else
-			Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
+
+			if (debug) target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+		} //else
+			//Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
 	}
 
 	// Use this for initialization
@@ -305,6 +333,16 @@ public class MasterScript : MonoBehaviour {
 
 
 		EnclosureCheck (false);
+
+		RoomBuilder rb = new RoomBuilder(floorSize, this);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 
 		//removeWalls (1, 0, 1, 4);
 		//createWalls (1, 0, 1, 4);
