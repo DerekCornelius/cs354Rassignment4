@@ -635,8 +635,10 @@ public class MasterScript : MonoBehaviour {
 											Debug.Log ("cells[" + xCoord + ", " + y + ", " + zCoord + "] == cells(" + x + ", " + y + ", " + z + ")");
 										Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
 										//cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
-										removeWalls (xCoord, y, zCoord, 2);
-										createDoors (xCoord, y, zCoord, 2);
+										if (zCoord != floorSize - 1) {
+											removeWalls (xCoord, y, zCoord, 2);
+											createDoors (xCoord, y, zCoord, 2);
+										}
 										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
 										break;
 									}
