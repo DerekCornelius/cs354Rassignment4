@@ -13,6 +13,7 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] ceiling;
 	public GameObject[] floor;
 	public GameObject[] wall;
+	public GameObject[] door;
 
 	public Cell[,,] cells;
 	public float spacing;
@@ -226,6 +227,62 @@ public class MasterScript : MonoBehaviour {
 			//Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
 	}
 
+	public void createDoors(int tX, int tY, int tZ, int doorNum, bool debug = false) { //4 means ALL doors
+
+		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+
+		Cell target = cells [tX, tY, tZ];
+		float yOffset = ((wallHeight / 2) * scale) + (tY * wallHeight * scale); 
+
+		if ((doorNum == 0 || doorNum == 4) && tZ != 0 && target.checkBorder(0) == b_type.NONE ) {
+			target.doors [0] = cells [tX, tY, tZ - 1].doors [2] = (GameObject)Instantiate (door [0], 
+				new Vector3 (spacing * tX, yOffset, spacing * tZ - (spacing / 2)), 
+				Quaternion.Euler (0, 0, 0));
+			target.doors [0].transform.parent = target.cellObj.transform;
+			target.doors [0].transform.localScale *= scale;
+			target.doors [0].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
+
+			if (debug) target.doors [0].GetComponent<MeshRenderer> ().material.color = new Color (0, 1f, 1f);
+		} //else
+		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
+
+		if ((doorNum == 1 || doorNum == 4) && tX != 0 && target.checkBorder(1) == b_type.NONE) {
+			target.doors[1] = cells[tX - 1, tY, tZ].doors[3] = (GameObject) Instantiate (door[0], 
+				new Vector3 (spacing * tX - (spacing / 2), yOffset, spacing * tZ), 
+				Quaternion.Euler(0, 90, 0));
+			target.doors[1].transform.parent = target.cellObj.transform;
+			target.doors[1].transform.localScale *= scale;
+			target.doors[1].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
+
+			if (debug) target.doors [1].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+		} //else
+		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
+
+		if ((doorNum == 2 || doorNum == 4) && tZ != floorSize && target.checkBorder(2) == b_type.NONE) {
+			target.doors[2] = cells[tX, tY, tZ + 1].doors[0] = (GameObject) Instantiate (door[0], 
+				new Vector3 (spacing * tX, yOffset, spacing * tZ + (spacing / 2)), 
+				Quaternion.Euler(0, 180, 0));
+			target.doors[2].transform.parent = target.cellObj.transform;
+			target.doors[2].transform.localScale *= scale;
+			target.doors[2].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
+
+			if (debug) target.doors [2].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+		} //else
+		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
+
+		if ((doorNum == 3 || doorNum == 4) && tX != floorSize && target.checkBorder(3) == b_type.NONE) {
+			target.doors[3] = cells[tX + 1, tY, tZ].doors[1] = (GameObject) Instantiate (door[0], 
+				new Vector3 (spacing * tX + (spacing / 2), yOffset, spacing * tZ), 
+				Quaternion.Euler(0, 90, 0));
+			target.doors[3].transform.parent = target.cellObj.transform;
+			target.doors[3].transform.localScale *= scale;
+			target.doors[3].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
+
+			if (debug) target.doors [3].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+		} //else
+		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
+	}
+
 	// Use this for initialization
 	void Start () {
 
@@ -332,7 +389,6 @@ public class MasterScript : MonoBehaviour {
 
 
 
-		EnclosureCheck (false);
 
 
 		RoomBuilder rb = new RoomBuilder(floorSize, this);
@@ -345,6 +401,7 @@ public class MasterScript : MonoBehaviour {
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 
+		EnclosureCheck (false);
 
 		//removeWalls (1, 0, 1, 4);
 		//createWalls (1, 0, 1, 4);
@@ -575,7 +632,9 @@ public class MasterScript : MonoBehaviour {
 										if (debug)
 											Debug.Log ("cells[" + xCoord + ", " + y + ", " + zCoord + "] == cells(" + x + ", " + y + ", " + z + ")");
 										Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
-										cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+										//cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+										removeWalls (xCoord, y, zCoord, 2);
+										createDoors (xCoord, y, zCoord, 2);
 										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
 										break;
 									}

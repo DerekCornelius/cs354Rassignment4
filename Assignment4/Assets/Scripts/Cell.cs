@@ -32,7 +32,8 @@ public class Cell : MonoBehaviour {
 	    
 	*/
 	public int[] index = new int[3]; // This cell's index in the cell [x,y,z] array
-	public GameObject[] walls = new GameObject[4]; 
+	public GameObject[] walls = new GameObject[4];
+	public GameObject[] doors = new GameObject[4];
 	public GameObject floor;
 	public GameObject ceiling;
 	public GameObject cellObj;
@@ -50,8 +51,6 @@ public class Cell : MonoBehaviour {
 
 		cellType = c_type.HALLWAY;
 	}
-
-
 
 	public int getNumWalls ()
 	{
