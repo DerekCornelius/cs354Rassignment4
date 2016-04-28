@@ -394,6 +394,7 @@ public class MasterScript : MonoBehaviour {
 
 
 		RoomBuilder rb = new RoomBuilder(floorSize, this);
+		/*
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
@@ -402,6 +403,14 @@ public class MasterScript : MonoBehaviour {
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		*/
+		rb.buildXByZRoom (0, 5, 3);
+		rb.buildXByZRoom (0, 1, 5);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildXByZRoom (0, 2, 2);
+
 
 		EnclosureCheck (false);
 

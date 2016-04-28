@@ -35,7 +35,7 @@ public class RoomBuilder : MonoBehaviour {
 	}
 
 	//This method can only be called explicitly - buildRoom cannot specify the size correctly
-	public void buildXByYRoom(int x, int floor, int z, bool debug = false) {
+	public void buildXByZRoom(int floor, int x, int z, bool debug = false) {
 
 		int xM = x - 1; //the M stands for minus 1
 		int zM = z - 1;
@@ -92,6 +92,9 @@ public class RoomBuilder : MonoBehaviour {
 
 	private void buildThreeByThreeRoom(int floor, bool debug = false) {
 
+		buildXByZRoom (floor, 3, 3, debug);
+
+		/*
 		Debug.Assert (floorSize > 2);
 
 		int xRandom = Random.Range (0, floorSize - 2);
@@ -150,6 +153,7 @@ public class RoomBuilder : MonoBehaviour {
 		m.removeWalls (xRandom + 1, floor, zRandom + 2, 3, debug);
 		m.removeWalls (xRandom + 2, floor, zRandom + 1, 0, debug);
 		m.removeWalls (xRandom + 2, floor, zRandom + 1, 2, debug);
+		*/
 
 	}
 }
