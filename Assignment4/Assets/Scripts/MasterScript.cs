@@ -21,7 +21,7 @@ public class MasterScript : MonoBehaviour {
 
 	// temp attempt hee hee
 	//just highlights tiles in a breadth-first search to see how it looks
-	public void breadthFirstSearch(int sX, int sY, int sZ) { //the s is for Starting
+	public void breadthFirstSearch(int sX, int sY, int sZ, bool debug = false) { //the s is for Starting
 		/* SICKEST CODE I EVER WROTE
 		for (int i = 0; i < 4; i++) {
 			if (cells [rX, rY, rZ].walls [i] == null) {
@@ -30,7 +30,7 @@ public class MasterScript : MonoBehaviour {
 		}
 		*/
 
-		const int WALL_DEPTH = 10;
+		const int WALL_DEPTH = -1;
 
 		Queue<Cell> Q = new Queue<Cell>();
 		Cell root = cells [sX, sY, sZ];
@@ -40,12 +40,14 @@ public class MasterScript : MonoBehaviour {
 		while (Q.Count != 0) {
 			Cell curCell = Q.Dequeue ();
 
-			if (curCell.depth <= WALL_DEPTH) {
-				//float colorByDepth = (float) 1 - ((float) .05 * curCell.depth);
-				//curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (colorByDepth, 0, 0);
-				curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
-			} else {
-				curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
+			if (debug) {
+				if (curCell.depth <= WALL_DEPTH) {
+					//float colorByDepth = (float) 1 - ((float) .05 * curCell.depth);
+					//curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (colorByDepth, 0, 0);
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
+				} else {
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
+				}
 			}
 
 			int nX = curCell.index[0];
@@ -142,7 +144,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [0]);
-				target.walls [0] = cells [tX, tY, tZ - 1].walls [0] = null;
+				target.walls [0] = cells [tX, tY, tZ - 1].walls [2] = null;
 			}
 		}
 		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls[1] != null) {
@@ -150,7 +152,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [1]);
-				target.walls [1] = cells [tX - 1, tY, tZ].walls [1] = null;
+				target.walls [1] = cells [tX - 1, tY, tZ].walls [3] = null;
 			}
 		}
 		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls[2] != null) {
@@ -158,7 +160,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [2]);
-				target.walls [2] = cells [tX, tY, tZ + 1].walls [2] = null;
+				target.walls [2] = cells [tX, tY, tZ + 1].walls [0] = null;
 			}
 		}
 		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls[3] != null) {
@@ -166,7 +168,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [3]);
-				target.walls [3] = cells [tX + 1, tY, tZ].walls [3] = null;
+				target.walls [3] = cells [tX + 1, tY, tZ].walls [1] = null;
 			}
 		}
 	}
@@ -406,7 +408,7 @@ public class MasterScript : MonoBehaviour {
 		//removeWalls (1, 0, 1, 4);
 		//createWalls (1, 0, 1, 4);
 
-		//breadthFirstSearch (0, 0, 0);
+		breadthFirstSearch (0, 0, 0, true);
 
 	}
 
@@ -552,7 +554,7 @@ public class MasterScript : MonoBehaviour {
 	            for (int z = 0; z < floorSize; z++) {
 
 	            	
-					if (cells[x,y,z].walls[1] && cells[x,y,z].walls[2])
+					if (cells[x,y,z].walls[1] != null && cells[x,y,z].walls[2] != null)
 					{
 						bool possibleEnclosure = true;
 						Cell start = cells[x,y,z];

@@ -3,6 +3,7 @@ using System.Collections;
 
 
 public enum c_type { HALLWAY, ROOM };
+public enum b_type { NONE, WALL, DOOR };
 
 public class Cell : MonoBehaviour {
 
@@ -32,7 +33,11 @@ public class Cell : MonoBehaviour {
 	    
 	*/
 	public int[] index = new int[3]; // This cell's index in the cell [x,y,z] array
+<<<<<<< HEAD
 	public GameObject[] walls = new GameObject[4];
+=======
+	public GameObject[] walls = new GameObject[4]; 
+>>>>>>> origin/master
 	public GameObject[] doors = new GameObject[4];
 	public GameObject floor;
 	public GameObject ceiling;
@@ -72,7 +77,16 @@ public class Cell : MonoBehaviour {
 				   (index[2] == ((Cell)obj).index[2]);
 	}
 
-
+	//before making a border GameObject, assert that type = NONE
+	public b_type checkBorder(int index) {
+		if (walls [index] != null)
+			return b_type.WALL;
+		else if (doors [index] != null)
+			return b_type.DOOR;
+		else
+			return b_type.NONE;
+		
+	}
 
 
 	

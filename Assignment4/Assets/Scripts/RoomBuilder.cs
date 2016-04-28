@@ -37,6 +37,7 @@ public class RoomBuilder : MonoBehaviour {
 	private void buildThreeByThreeRoom(int floor) {
 
 		Debug.Assert (floorSize > 2);
+		const bool debug = false;
 
 		int xRandom = Random.Range (0, floorSize - 2);
 		int zRandom = Random.Range (0, floorSize - 2);
@@ -119,28 +120,29 @@ public class RoomBuilder : MonoBehaviour {
 		}
 
 
-		m.createWalls (xRandom, floor, zRandom, 0, true);
-		m.createWalls (xRandom, floor, zRandom, 1, true);
-		m.createWalls (xRandom + 1, floor, zRandom, 0, true);
-		m.createWalls (xRandom + 2, floor, zRandom, 0, true);
-		m.createWalls (xRandom + 2, floor, zRandom, 3, true);
-		m.createWalls (xRandom, floor, zRandom + 1, 1, true);
-		m.createWalls (xRandom, floor, zRandom + 2, 1, true);
-		m.createWalls (xRandom, floor, zRandom + 2, 2, true);
-		m.createWalls (xRandom + 1, floor, zRandom + 2, 2, true);
-		m.createWalls (xRandom + 2, floor, zRandom + 2, 2, true);
-		m.createWalls (xRandom + 2, floor, zRandom + 2, 3, true);
-		m.createWalls (xRandom + 2, floor, zRandom + 1, 3, true);
 
-		m.removeWalls (xRandom + 1, floor, zRandom + 1, 4, true);
-		m.removeWalls (xRandom + 1, floor, zRandom, 1, true);
-		m.removeWalls (xRandom + 1, floor, zRandom, 3, true);
-		m.removeWalls (xRandom, floor, zRandom + 1, 0, true);
-		m.removeWalls (xRandom, floor, zRandom + 1, 2, true);
-		m.removeWalls (xRandom + 1, floor, zRandom + 2, 1, true);
-		m.removeWalls (xRandom + 1, floor, zRandom + 2, 3, true);
-		m.removeWalls (xRandom + 2, floor, zRandom + 1, 0, true);
-		m.removeWalls (xRandom + 2, floor, zRandom + 1, 2, true);
+		m.createWalls (xRandom, floor, zRandom, 0, debug);
+		m.createWalls (xRandom, floor, zRandom, 1, debug);
+		m.createWalls (xRandom + 1, floor, zRandom, 0, debug);
+		m.createWalls (xRandom + 2, floor, zRandom, 0, debug);
+		m.createWalls (xRandom + 2, floor, zRandom, 3, debug);
+		m.createWalls (xRandom, floor, zRandom + 1, 1, debug);
+		m.createWalls (xRandom, floor, zRandom + 2, 1, debug);
+		m.createWalls (xRandom, floor, zRandom + 2, 2, debug);
+		m.createWalls (xRandom + 1, floor, zRandom + 2, 2, debug);
+		m.createWalls (xRandom + 2, floor, zRandom + 2, 2, debug);
+		m.createWalls (xRandom + 2, floor, zRandom + 2, 3, debug);
+		m.createWalls (xRandom + 2, floor, zRandom + 1, 3, debug);
+
+		m.removeWalls (xRandom + 1, floor, zRandom + 1, 4, debug);
+		m.removeWalls (xRandom + 1, floor, zRandom, 1, debug);
+		m.removeWalls (xRandom + 1, floor, zRandom, 3, debug);
+		m.removeWalls (xRandom, floor, zRandom + 1, 0, debug);
+		m.removeWalls (xRandom, floor, zRandom + 1, 2, debug);
+		m.removeWalls (xRandom + 1, floor, zRandom + 2, 1, debug);
+		m.removeWalls (xRandom + 1, floor, zRandom + 2, 3, debug);
+		m.removeWalls (xRandom + 2, floor, zRandom + 1, 0, debug);
+		m.removeWalls (xRandom + 2, floor, zRandom + 1, 2, debug);
 
 
 		/*
