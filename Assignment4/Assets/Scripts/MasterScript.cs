@@ -136,7 +136,7 @@ public class MasterScript : MonoBehaviour {
 
 	public void removeWalls(int tX, int tY, int tZ, int wallNum, bool debug = false) { //4 means ALL walls
 
-		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+		Debug.Assert (tX < floorSize && tY < numFloors && tZ < floorSize);
 
 		Cell target = cells [tX, tY, tZ];
 		if ((wallNum == 0 || wallNum == 4) && tZ != 0 && target.walls[0] != null) {
@@ -155,7 +155,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [1] = cells [tX - 1, tY, tZ].walls [3] = null;
 			}
 		}
-		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls[2] != null) {
+		if ((wallNum == 2 || wallNum == 4) && tZ < floorSize - 1 && target.walls[2] != null) {
 			if (debug) {
 				target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
@@ -163,7 +163,7 @@ public class MasterScript : MonoBehaviour {
 				target.walls [2] = cells [tX, tY, tZ + 1].walls [0] = null;
 			}
 		}
-		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls[3] != null) {
+		if ((wallNum == 3 || wallNum == 4) && tX < floorSize - 1 && target.walls[3] != null) {
 			if (debug) {
 				target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
@@ -175,12 +175,12 @@ public class MasterScript : MonoBehaviour {
 
 	public void createWalls(int tX, int tY, int tZ, int wallNum, bool debug = false) { //4 means ALL walls
 
-		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+		Debug.Assert (tX < floorSize && tY < numFloors && tZ < floorSize);
 
 		Cell target = cells [tX, tY, tZ];
 		float yOffset = ((wallHeight / 2) * scale) + (tY * wallHeight * scale); 
 
-		if ((wallNum == 0 || wallNum == 4) && tZ != 0 && target.walls [0] == null) {
+		if ((wallNum == 0 || wallNum == 4) && tZ >= 0 && target.walls [0] == null) {
 			target.walls [0] = cells [tX, tY, tZ - 1].walls [2] = (GameObject)Instantiate (wall [0], 
 				new Vector3 (spacing * tX, yOffset, spacing * tZ - (spacing / 2)), 
 				Quaternion.Euler (0, 0, 0));
@@ -192,7 +192,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 			//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
 		
-		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls [1] == null) {
+		if ((wallNum == 1 || wallNum == 4) && tX >= 0 && target.walls [1] == null) {
 			target.walls[1] = cells[tX - 1, tY, tZ].walls[3] = (GameObject) Instantiate (wall[0], 
 				new Vector3 (spacing * tX - (spacing / 2), yOffset, spacing * tZ), 
 				Quaternion.Euler(0, 90, 0));
@@ -204,7 +204,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 			//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
 		
-		if ((wallNum == 2 || wallNum == 4) && tZ != floorSize && target.walls [2] == null) {
+		if ((wallNum == 2 || wallNum == 4) && tZ < floorSize - 1 && target.walls [2] == null) {
 			target.walls[2] = cells[tX, tY, tZ + 1].walls[0] = (GameObject) Instantiate (wall[0], 
 				new Vector3 (spacing * tX, yOffset, spacing * tZ + (spacing / 2)), 
 				Quaternion.Euler(0, 180, 0));
@@ -216,7 +216,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 			//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
 		
-		if ((wallNum == 3 || wallNum == 4) && tX != floorSize && target.walls [3] == null) {
+		if ((wallNum == 3 || wallNum == 4) && tX < floorSize - 1 && target.walls [3] == null) {
 			target.walls[3] = cells[tX + 1, tY, tZ].walls[1] = (GameObject) Instantiate (wall[0], 
 				new Vector3 (spacing * tX + (spacing / 2), yOffset, spacing * tZ), 
 				Quaternion.Euler(0, 90, 0));
@@ -231,12 +231,12 @@ public class MasterScript : MonoBehaviour {
 
 	public void createDoors(int tX, int tY, int tZ, int doorNum, bool debug = false) { //4 means ALL doors
 
-		Debug.Assert (tX < floorSize || tY < numFloors || tZ < floorSize);
+		Debug.Assert (tX < floorSize && tY < numFloors && tZ < floorSize);
 
 		Cell target = cells [tX, tY, tZ];
 		float yOffset = ((wallHeight / 2) * scale) + (tY * wallHeight * scale); 
 
-		if ((doorNum == 0 || doorNum == 4) && tZ != 0 && target.checkBorder(0) == b_type.NONE ) {
+		if ((doorNum == 0 || doorNum == 4) && tZ >= 0 && target.checkBorder(0) == b_type.NONE ) {
 			target.doors [0] = cells [tX, tY, tZ - 1].doors [2] = (GameObject)Instantiate (door [0], 
 				new Vector3 (spacing * tX, yOffset, spacing * tZ - (spacing / 2)), 
 				Quaternion.Euler (0, 0, 0));
@@ -248,7 +248,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
 
-		if ((doorNum == 1 || doorNum == 4) && tX != 0 && target.checkBorder(1) == b_type.NONE) {
+		if ((doorNum == 1 || doorNum == 4) && tX >= 0 && target.checkBorder(1) == b_type.NONE) {
 			target.doors[1] = cells[tX - 1, tY, tZ].doors[3] = (GameObject) Instantiate (door[0], 
 				new Vector3 (spacing * tX - (spacing / 2), yOffset, spacing * tZ), 
 				Quaternion.Euler(0, 90, 0));
@@ -260,7 +260,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
 
-		if ((doorNum == 2 || doorNum == 4) && tZ != floorSize && target.checkBorder(2) == b_type.NONE) {
+		if ((doorNum == 2 || doorNum == 4) && tZ < floorSize - 1 && target.checkBorder(2) == b_type.NONE) {
 			target.doors[2] = cells[tX, tY, tZ + 1].doors[0] = (GameObject) Instantiate (door[0], 
 				new Vector3 (spacing * tX, yOffset, spacing * tZ + (spacing / 2)), 
 				Quaternion.Euler(0, 180, 0));
@@ -272,7 +272,7 @@ public class MasterScript : MonoBehaviour {
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
 
-		if ((doorNum == 3 || doorNum == 4) && tX != floorSize && target.checkBorder(3) == b_type.NONE) {
+		if ((doorNum == 3 || doorNum == 4) && tX < floorSize - 1 && target.checkBorder(3) == b_type.NONE) {
 			target.doors[3] = cells[tX + 1, tY, tZ].doors[1] = (GameObject) Instantiate (door[0], 
 				new Vector3 (spacing * tX + (spacing / 2), yOffset, spacing * tZ), 
 				Quaternion.Euler(0, 90, 0));
@@ -411,6 +411,8 @@ public class MasterScript : MonoBehaviour {
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildXByZRoom (0, 2, 2);
 
+
+		removeWalls (floorSize - 1, 0, floorSize - 1, 4);
 
 		EnclosureCheck (false);
 
@@ -571,10 +573,12 @@ public class MasterScript : MonoBehaviour {
 						int xCoord = x;
 						int zCoord = z;
 						int curCorners = 1;
+						Cell[] possibleDoorCells = new Cell [4];
 
 						if (debug)
 							start.floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 1);
 
+						possibleDoorCells [0] = cells [xCoord, y, zCoord];
 
 						while (possibleEnclosure)
 						{
@@ -588,6 +592,7 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[2] != null && cells[xCoord, y, zCoord].walls[3] != null) {
 									++curCorners;
+									possibleDoorCells [1] = cells [xCoord, y, zCoord];
 									continue;
 								}
 								else if (cells[xCoord, y, zCoord].walls[2] == null) {
@@ -605,6 +610,7 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[3] != null && cells[xCoord, y, zCoord].walls[0] != null) {
 									++curCorners;
+									possibleDoorCells [2] = cells [xCoord, y, zCoord];
 									continue;
 								}
 								else if (cells[xCoord, y, zCoord].walls[3] == null) {
@@ -622,6 +628,7 @@ public class MasterScript : MonoBehaviour {
 								}
 								else if (cells[xCoord, y, zCoord].walls[0] != null && cells[xCoord, y, zCoord].walls[1] != null) {
 									++curCorners;
+									possibleDoorCells [3] = cells [xCoord, y, zCoord];
 									continue;
 								}
 								else if (cells[xCoord, y, zCoord].walls[0] == null) {
@@ -640,14 +647,52 @@ public class MasterScript : MonoBehaviour {
 								else if (cells[xCoord, y, zCoord].walls[1] != null && cells[xCoord, y, zCoord].walls[2] != null) {
 									if (cells[xCoord, y, zCoord].Equals(cells[x, y, z])) {
 										Debug.Assert(xCoord == x && zCoord == z);
-										if (debug)
-											Debug.Log ("cells[" + xCoord + ", " + y + ", " + zCoord + "] == cells(" + x + ", " + y + ", " + z + ")");
-										Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
-										//cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
-										if (zCoord != floorSize - 1) {
-											removeWalls (xCoord, y, zCoord, 2);
-											createDoors (xCoord, y, zCoord, 2);
+										if (debug) {
+											Debug.Log ("Enclosure found at (" + xCoord + ", " + y + ", " + zCoord + ")");
 										}
+										//cells[xCoord, y, zCoord].walls[2].GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
+
+										int removeX;
+										int removeZ;
+										bool doorPlaced = false;
+										int rand;
+
+										rand = Random.Range(0, 4);
+
+										// Random door placement
+										while (!doorPlaced) {
+											if (rand == 0 && zCoord != 0) {
+												removeX = possibleDoorCells [3].index [0];
+												removeZ = possibleDoorCells [3].index [2];
+												removeWalls (removeX, y, removeZ, 0);
+												createDoors (removeX, y, removeZ, 0);
+												doorPlaced = true;
+											} else if (rand == 1 && xCoord != 0) {
+												removeX = possibleDoorCells [0].index [0];
+												removeZ = possibleDoorCells [0].index [2];
+												removeWalls (removeX, y, removeZ, 1);
+												createDoors (removeX, y, removeZ, 1);
+												doorPlaced = true;
+											} else if (rand == 2 && zCoord != floorSize - 1) {
+												removeX = possibleDoorCells [0].index [0];
+												removeZ = possibleDoorCells [0].index [2];
+												removeWalls (removeX, y, removeZ, 2);
+												createDoors (removeX, y, removeZ, 2);
+												doorPlaced = true;
+											} else if (rand == 3 && xCoord != floorSize - 1) {
+												removeX = possibleDoorCells [1].index [0];
+												removeZ = possibleDoorCells [1].index [2];
+												removeWalls (removeX, y, removeZ, 3);
+												createDoors (removeX, y, removeZ, 3);
+												doorPlaced = true;
+											} else {
+												rand = Random.Range (0, 4);
+											}
+										}
+
+
+
+
 										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
 										break;
 									}
