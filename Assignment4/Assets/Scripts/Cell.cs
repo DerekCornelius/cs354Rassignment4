@@ -33,11 +33,7 @@ public class Cell : MonoBehaviour {
 	    
 	*/
 	public int[] index = new int[3]; // This cell's index in the cell [x,y,z] array
-<<<<<<< HEAD
 	public GameObject[] walls = new GameObject[4];
-=======
-	public GameObject[] walls = new GameObject[4]; 
->>>>>>> origin/master
 	public GameObject[] doors = new GameObject[4];
 	public GameObject floor;
 	public GameObject ceiling;
