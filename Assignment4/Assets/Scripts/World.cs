@@ -104,7 +104,7 @@ public class World : MonoBehaviour {
 
 		EnclosureCheck (false);
 
-		connectAllCellsTo(0, 0, 0, 0, true);
+		connectAllCellsTo(0, 0, 0, 0, false);
 
 	}
 

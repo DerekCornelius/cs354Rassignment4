@@ -66,7 +66,8 @@ public class RoomBuilder : MonoBehaviour {
 				break;
 		}
 		if (attempts > 4) {
-			Debug.Log ("Exceeded 5 attempts, room creation failed.");
+			if (debug)
+				Debug.Log ("Exceeded 5 attempts, room creation failed.");
 			return;
 		} else {
 			for (int i = xRandom; i < xRandom + x; i++) {
