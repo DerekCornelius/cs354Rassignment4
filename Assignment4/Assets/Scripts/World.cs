@@ -73,16 +73,38 @@ public class World : MonoBehaviour {
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildXByZRoom (0, 2, 2);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
+		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 
 		removeWalls (floorSize - 1, 0, floorSize - 1, 4);
 
 		EnclosureCheck (false);
 
-
-		//removeWalls (1, 0, 1, 4);
-		//createWalls (1, 0, 1, 4);
-
-		breadthFirstSearch (0, 0, 0, true);
+		connectAllCellsTo(0, 0, 0, 0, true);
 
 	}
 
@@ -98,22 +120,14 @@ public class World : MonoBehaviour {
 
 	// ***** PUBLIC FUNCTIONS *****
 
-	// temp attempt hee hee
-	//just highlights tiles in a breadth-first search to see how it looks
-	public void breadthFirstSearch(int sX, int sY, int sZ, bool debug = false) { //the s is for Starting
-		/* SICKEST CODE I EVER WROTE
-		for (int i = 0; i < 4; i++) {
-			if (cells [rX, rY, rZ].walls [i] == null) {
-				breadthFirstSearch( depth + 1, (rX + ((i - 2) * i % 2)), rY, (rZ + ((i - 1) * (i % 2 - 1) * -1) ) );
-			}
-		}
-		*/
+	//labels cells with their distance (depth) from the starting cell, in a breadth-first manner
+	public void breadthFirstSearch(int sX, int sY, int sZ, int startingDepth, bool debug = false) { //the s is for Starting
 
-		const int WALL_DEPTH = -1;
+		const int WALL_DEPTH = -1; //legacy code for adding blocking maze at a certain depth
 
 		Queue<Cell> Q = new Queue<Cell>();
 		Cell root = cells [sX, sY, sZ];
-		root.depth = 0;
+		root.depth = startingDepth;
 		Q.Enqueue(root);
 
 		while (Q.Count != 0) {
@@ -197,18 +211,6 @@ public class World : MonoBehaviour {
 			}
 
 		}
-
-		/*
-		Cell curCell = cells [rX, rY, rZ];
-
-		if (curCell.depth > -1)
-			return;
-		
-		curCell.depth = depth;
-		float colorByDepth = (float) 1 - ((float) .01 * depth);
-		curCell.floor.GetComponent<MeshRenderer>().material.color = new Color (colorByDepth, 0, 0);
-		*/
-
 
 	}
 
@@ -725,8 +727,8 @@ public class World : MonoBehaviour {
 
 
 
-
-										cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+										if (debug)
+											cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
 										break;
 									}
 									else
@@ -751,6 +753,98 @@ public class World : MonoBehaviour {
 			}
 		}
 
+	}
+
+	private void connectAllCellsTo(int sX, int sY, int sZ, int startingDepth, bool debug = false) { //x, y, z starting point for interconnectivity check
+		breadthFirstSearch (sX, sY, sZ, startingDepth, debug);
+
+		List<Cell> l = new List<Cell>();
+
+		for (int k = 0; k < numFloors; k++) {
+			for (int i = 0; i < floorSize; i++) {
+				for (int j = 0; j < floorSize; j++) {
+					if (cells [i, k, j].depth == -1)
+						l.Add (cells [i, k, j]);
+				}
+			}
+		}
+
+		if (l.Count == 0)
+			return;
+		int x = 0, y = 0, z = 0;
+		int nextDepth = 0;
+
+		bool success = false;
+		while (!success) {
+			int r = Random.Range (0, l.Count);
+
+			Cell current = l [r];
+			x = current.index [0];
+			y = current.index [1];
+			z = current.index [2];
+
+			if (debug) {
+				Debug.Log ("Removing wall to connect at " + x + ", " + y + ", " + z);
+				current.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
+			}
+
+			int random = Random.Range (0, 4);
+
+
+			for (int i = random; i < random + 4; i++) {
+				if (debug)
+					Debug.Log ("i: " + i);
+				int target = i % 4;
+				if (debug)
+					Debug.Log ("Trying wall: " + target);
+				if (!((target == 0 && z == 0) ||
+				   (target == 1 && x == 0) ||
+				   (target == 2 && z == floorSize - 1) ||
+				   (target == 3 && x == floorSize - 1))) {
+					if (debug)
+						Debug.Log ("Wall is not border wall.");
+
+					Cell neighbor;
+					if (target == 0)
+						neighbor = cells [x, y, z - 1];
+					else if (target == 1)
+						neighbor = cells [x - 1, y, z];
+					else if (target == 2)
+						neighbor = cells [x, y, z + 1];
+					else
+						neighbor = cells [x + 1, y, z];
+
+					if ((neighbor.depth != -1) && (current.walls [target] != null)) {
+						removeWalls (x, y, z, target);
+						createDoors (x, y, z, target);
+						if (debug) {
+							Debug.Log ("Success.");
+							Debug.Log ("Neighbor depth: " + neighbor.depth);
+							Debug.Log ("Replacing Wall: " + target);
+						}
+						success = true;
+						nextDepth = neighbor.depth + 1;
+						continue;
+					} else {
+						if (debug)
+							Debug.Log ("Failed. Neighbor invalid or wall does not exist.");
+					}
+				} else {
+					if (debug)
+						Debug.Log ("Failed. Wall is border wall.");
+				}
+			}
+
+			if (!success) {
+				l.RemoveAt (r);
+				if (l.Count == 0) {
+					Debug.Log ("Completely failed to connect disconnected Rooms. You should not be seeing this message.");
+					return;
+				}
+			}
+		}
+
+		connectAllCellsTo (x, y, z, nextDepth, debug); //this function repeats itself until all cells are connected
 	}
 
 } //end of class

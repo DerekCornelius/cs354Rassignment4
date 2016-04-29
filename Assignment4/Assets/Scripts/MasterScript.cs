@@ -4,7 +4,6 @@ using System.Threading;
 
 public class MasterScript : MonoBehaviour {
 
-
 	public bool enableCeilings;
 	public float scale;
 	public int floorSize;
@@ -14,6 +13,7 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] floor;
 	public GameObject[] wall;
 	public GameObject[] door;
+
 
 	/*
 	public Cell[,,] cells;
@@ -29,7 +29,7 @@ public class MasterScript : MonoBehaviour {
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
-		player.name = "Player"; 
+		player.name = "Player";
 
 	}
 
