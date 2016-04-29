@@ -876,7 +876,7 @@ public class World : MonoBehaviour {
  									 (cells [x, y, z+1].checkBorder(3) != b_type.NONE) &&
 									 (cells [x+1, y, z+1].checkBorder(0) != b_type.NONE);
 
-					cornerCase [2] = (cells [x, y, z].checkBorder(3) != b_type.NONE) &&
+					cornerCase [3] = (cells [x, y, z].checkBorder(3) != b_type.NONE) &&
 									 (cells [x, y, z].checkBorder(2) == b_type.NONE) &&
 									 (cells [x, y, z+1].checkBorder(3) == b_type.NONE) &&
 									 (cells [x+1, y, z+1].checkBorder(0) != b_type.NONE);
@@ -886,6 +886,7 @@ public class World : MonoBehaviour {
 
 					if (cornerCase[0] || cornerCase[1] || cornerCase[2] || cornerCase[3])
 					{
+						
 						GameObject newCorner = (GameObject) Instantiate (corner[0], 
 							new Vector3 (spacing * x + (spacing / 2), yOffset, spacing * z + (spacing / 2)), 
 							Quaternion.Euler(0, 0, 0));
