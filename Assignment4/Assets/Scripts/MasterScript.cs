@@ -13,6 +13,7 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] floor;
 	public GameObject[] wall;
 	public GameObject[] door;
+	public GameObject[] corner;
 
 
 	/*
@@ -25,7 +26,7 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		World w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door);
+		World w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner);
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);

@@ -14,6 +14,7 @@ public class World : MonoBehaviour {
 	public GameObject[] floor;
 	public GameObject[] wall;
 	public GameObject[] door;
+	public GameObject[] corner;
 
 	public Cell[,,] cells;
 	public float spacing;
@@ -42,7 +43,7 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -52,6 +53,7 @@ public class World : MonoBehaviour {
 		floor = f;
 		wall = w;
 		door = d;
+		corner = cn;
 
 
 
@@ -105,6 +107,8 @@ public class World : MonoBehaviour {
 		EnclosureCheck (false);
 
 		connectAllCellsTo(0, 0, 0, 0, false);
+
+		addElements ();
 
 	}
 
@@ -845,6 +849,53 @@ public class World : MonoBehaviour {
 		}
 
 		connectAllCellsTo (x, y, z, nextDepth, debug); //this function repeats itself until all cells are connected
+	}
+
+	public void addElements () {
+		for (int y = 0; y < numFloors; y++) {			
+			for (int x = 0; x < floorSize - 1; x++) {
+				for (int z = 0; z < floorSize - 1; z++) {
+					bool[] cornerCase = new bool[4];
+					/*cornerCase [0] = (cells [x, y, z].walls [3] || cells [x + 1, y, z].walls [1]) &&
+									(cells [x, y, z].walls [2] || cells [x, y, z + 1].walls [0]) &&
+									!(cells [x, y, z + 1].walls [3] || cells [x + 1, y, z + 1].walls [1] ||
+									cells [x + 1, y, z].walls [2] || cells [x + 1, y, z + 1].walls [0]);
+					*/
+					cornerCase [0] = (cells [x, y, z].checkBorder(3) != b_type.NONE) &&
+									 (cells [x, y, z].checkBorder(2) != b_type.NONE) &&
+									 (cells [x, y, z+1].checkBorder(3) == b_type.NONE) &&
+									 (cells [x+1, y, z+1].checkBorder(0) == b_type.NONE);
+
+					cornerCase [1] = (cells [x, y, z].checkBorder(3) == b_type.NONE) &&
+									 (cells [x, y, z].checkBorder(2) != b_type.NONE) &&
+									 (cells [x, y, z+1].checkBorder(3) != b_type.NONE) &&
+									 (cells [x+1, y, z+1].checkBorder(0) == b_type.NONE);
+
+					cornerCase [2] = (cells [x, y, z].checkBorder(3) == b_type.NONE) &&
+ 									 (cells [x, y, z].checkBorder(2) == b_type.NONE) &&
+ 									 (cells [x, y, z+1].checkBorder(3) != b_type.NONE) &&
+									 (cells [x+1, y, z+1].checkBorder(0) != b_type.NONE);
+
+					cornerCase [2] = (cells [x, y, z].checkBorder(3) != b_type.NONE) &&
+									 (cells [x, y, z].checkBorder(2) == b_type.NONE) &&
+									 (cells [x, y, z+1].checkBorder(3) == b_type.NONE) &&
+									 (cells [x+1, y, z+1].checkBorder(0) != b_type.NONE);
+
+					float yOffset = ((wallHeight / 2) * scale) + (y * wallHeight * scale); 
+
+
+					if (cornerCase[0] || cornerCase[1] || cornerCase[2] || cornerCase[3])
+					{
+						GameObject newCorner = (GameObject) Instantiate (corner[0], 
+							new Vector3 (spacing * x + (spacing / 2), yOffset, spacing * z + (spacing / 2)), 
+							Quaternion.Euler(0, 0, 0));
+						//newCorner.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
+						newCorner.transform.localScale *= scale;
+
+					}
+				}
+			}
+		}
 	}
 
 } //end of class
