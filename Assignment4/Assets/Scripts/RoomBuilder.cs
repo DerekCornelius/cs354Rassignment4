@@ -6,7 +6,7 @@ public enum r_type { THREE_BY_THREE };
 public class RoomBuilder : MonoBehaviour {
 
 	private int floorSize;
-	private MasterScript m;
+	private World w;
 
 	public void buildRoom(r_type buildType, int floor, bool debug = false) {
 		switch (buildType) {
@@ -20,9 +20,9 @@ public class RoomBuilder : MonoBehaviour {
 
 	}
 
-	public RoomBuilder(int fs, MasterScript ms) {
+	public RoomBuilder(int fs, World world) {
 		floorSize = fs;
-		m = ms;
+		w = world;
 	}
 
 	// Use this for initialization
@@ -53,7 +53,7 @@ public class RoomBuilder : MonoBehaviour {
 
 			for (int i = xRandom; i < xRandom + x; i++) {
 				for (int j = zRandom; j < zRandom + z; j++) {
-					if (m.cells [i, floor, j].cellType == c_type.ROOM)
+					if (w.cells [i, floor, j].cellType == c_type.ROOM)
 						clear = false;
 				}
 			}
@@ -71,19 +71,19 @@ public class RoomBuilder : MonoBehaviour {
 		} else {
 			for (int i = xRandom; i < xRandom + x; i++) {
 				for (int j = zRandom; j < zRandom + z; j++) {
-					m.cells [i, floor, j].cellType = c_type.ROOM;
-					m.removeWalls (i, floor, j, 4, debug);
+					w.cells [i, floor, j].cellType = c_type.ROOM;
+					w.removeWalls (i, floor, j, 4, debug);
 				}
 			}
 		}
 
 		for (int i = xRandom; i < xRandom + x; i++) {
-			m.createWalls (i, floor, zRandom, 0, debug);
-			m.createWalls (i, floor, zRandom + zM, 2, debug);
+			w.createWalls (i, floor, zRandom, 0, debug);
+			w.createWalls (i, floor, zRandom + zM, 2, debug);
 		}
 		for (int j = zRandom; j < zRandom + z; j++) {
-			m.createWalls (xRandom, floor, j, 1, debug);
-			m.createWalls (xRandom + xM, floor, j, 3, debug);
+			w.createWalls (xRandom, floor, j, 1, debug);
+			w.createWalls (xRandom + xM, floor, j, 3, debug);
 		}
 
 
