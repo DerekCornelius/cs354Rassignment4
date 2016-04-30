@@ -9,12 +9,13 @@ public class World : MonoBehaviour {
 	public float scale;
 	public int floorSize;
 	public int numFloors;
-	public GameObject player;
+	//public GameObject player;
 	public GameObject[] ceiling;
 	public GameObject[] floor;
 	public GameObject[] wall;
 	public GameObject[] door;
 	public GameObject[] corner;
+	public GameObject[] miscellaneous;
 
 	public Cell[,,] cells;
 	public float spacing;
@@ -43,7 +44,7 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -54,6 +55,7 @@ public class World : MonoBehaviour {
 		wall = w;
 		door = d;
 		corner = cn;
+		miscellaneous = m;
 
 
 
@@ -387,7 +389,7 @@ public class World : MonoBehaviour {
 
 					Cell cell = new Cell (x, y, z);
 					cells[x, y, z] = cell;
-					cell.pos = new Vector3 (x, y, z); 
+					cell.pos = new Vector3 (spacing * x, wallHeight * scale * y, spacing * z); 
 
 					GameObject cellObj = new GameObject ();
 					cellObj.name = "Cell (" + x + ", " + y + ", " + z + ")";
@@ -456,6 +458,42 @@ public class World : MonoBehaviour {
 							ceiling[0].transform.rotation);
 						cell.ceiling.transform.parent = cellObj.transform;
 						cell.ceiling.transform.localScale *= scale;
+					}
+
+
+					// LIGHT GENERATION
+
+					float lightOffset = 0.3f;
+					if (z == 0) {
+						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+							new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2) + lightOffset), 
+							Quaternion.Euler(0, 0, 0));
+						torch.transform.parent = cellObj.transform;
+						torch.transform.localScale *= scale;
+					}
+
+					if (x == 0) {
+						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+							new Vector3 (spacing * x - (spacing / 2) + lightOffset, yOffset, spacing * z), 
+							Quaternion.Euler(0, 90, 0));
+						torch.transform.parent = cellObj.transform;
+						torch.transform.localScale *= scale;
+					}
+
+					if (z == floorSize - 1) {
+						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+							new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2) - lightOffset), 
+							Quaternion.Euler(0, 180, 0));
+						torch.transform.parent = cellObj.transform;
+						torch.transform.localScale *= scale;
+					}
+
+					if (x == floorSize - 1) {
+						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+							new Vector3 (spacing * x + (spacing / 2) - lightOffset, yOffset, spacing * z), 
+							Quaternion.Euler(0, 270, 0));
+						torch.transform.parent = cellObj.transform;
+						torch.transform.localScale *= scale;
 					}
 
 				}
