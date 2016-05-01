@@ -4,6 +4,8 @@ using System.Collections;
 public class Player : MonoBehaviour {
 
 	public float interactDistance = 5.0f;
+	public bool invincible = false;
+	public bool isDead = false;
 
 	private Camera camera;
 	private GameObject curTarget;
@@ -71,6 +73,19 @@ public class Player : MonoBehaviour {
 			
 
 		}	
+	}
+
+	public void Kill () {
+		if (!invincible && !isDead)
+		{
+			Debug.Log("You died");
+			this.GetComponent<CharacterController>().enabled = false;
+			camera.GetComponent<SphereCollider>().enabled = true;
+			camera.GetComponent<Rigidbody>().useGravity = true;
+			camera.transform.parent = null;
+			this.enabled = false;
+			isDead = true;
+		}
 	}
 
 }

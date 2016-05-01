@@ -6,6 +6,7 @@ public class MasterScript : MonoBehaviour {
 
 	public int occlusionRange = 5;
 	public bool enableCeilings;
+	public bool invincibility;
 	public float scale;
 	public int floorSize;
 	public int numFloors;
@@ -32,11 +33,16 @@ public class MasterScript : MonoBehaviour {
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
 		player.name = "Player";
+		player.GetComponent<Player>().invincible = invincibility;
 
 		//Initialize monster
 		monster = (GameObject) Instantiate (monster, w.cells[floorSize-1, 0, floorSize-1].pos, Quaternion.identity);
+		//monster = (GameObject) Instantiate (monster, w.cells[2, 0, 2].pos, Quaternion.identity);
 		monster.name = "Monster";
 		monster.GetComponent<Monster>().player = player;
+		monster.GetComponent<Monster>().floorSize = floorSize;
+		monster.GetComponent<Monster>().w = w;
+
 	}
 
 
