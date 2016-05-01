@@ -22,6 +22,7 @@ public class World : MonoBehaviour {
 	public float wallHeight;
 
 	private RoomBuilder rb;
+	private GameObject floors;
 
 	/*
 	 * Public Methods:
@@ -378,7 +379,7 @@ public class World : MonoBehaviour {
 	private void createFloor() {
 		for (int y = 0; y < numFloors; y++){
 
-			GameObject floors = new GameObject();
+			floors = new GameObject();
 			floors.name = "Floor " + y;
 
 
@@ -930,6 +931,7 @@ public class World : MonoBehaviour {
 							Quaternion.Euler(0, 0, 0));
 						//newCorner.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
 						newCorner.transform.localScale *= scale;
+						newCorner.transform.parent = cells[x,y,z].cellObj.transform;
 
 					}
 				}

@@ -4,6 +4,7 @@ using System.Threading;
 
 public class MasterScript : MonoBehaviour {
 
+	public int occlusionRange = 5;
 	public bool enableCeilings;
 	public float scale;
 	public int floorSize;
@@ -18,10 +19,15 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] miscellaneous;
 
 
+
+	private int occlusionCheck = 0;
+	private int occlusionRate = 30;
+	private World w;
+
 	// Use this for initialization
 	void Start () {
 
-		World w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner, miscellaneous);
+		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner, miscellaneous);
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
@@ -37,9 +43,40 @@ public class MasterScript : MonoBehaviour {
 
 
 
-	
+
 	// Update is called once per frame
 	void Update () {
+
+		if (occlusionCheck++ == occlusionRate)
+		{
+			occlusionCheck = 0;
+			for (int y = 0; y < numFloors; y++){
+				for (int x = 0; x < floorSize; x++) {
+					for (int z = 0; z < floorSize; z++) {
+						Cell tCell = w.cells[x,y,z];
+						Transform[] allChildren = tCell.cellObj.GetComponentsInChildren<Transform>();
+
+						if (Vector3.Distance(tCell.pos, player.transform.position) <= occlusionRange)
+						{
+							foreach (Transform child in allChildren) 
+						     {
+								child.gameObject.layer = 0; // Default layer, rendered
+							 }
+						}
+						else
+						{
+							foreach (Transform child in allChildren) 
+						     {
+								child.gameObject.layer = 8; // Unrendered layer
+
+							 }
+						}
+					}
+				}
+			}
+			Debug.Log("Updating occlusion culling");
+		}
+
 
 	}
 }
