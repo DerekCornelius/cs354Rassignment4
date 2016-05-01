@@ -4,9 +4,13 @@ using System.Collections;
 public class Monster : MonoBehaviour {
 
 	public GameObject player;
+	Animator anim;
+	NavMeshAgent nav;
 
 	// Use this for initialization
 	void Start () {
+		anim = GetComponent<Animator>();
+		nav = GetComponent<NavMeshAgent>();
 	}
 	
 	// Update is called once per frame
@@ -16,6 +20,7 @@ public class Monster : MonoBehaviour {
 		else
 			Debug.Log("Monster error: player is null");
 
-		GetComponent<Animator>().SetFloat("Speed", 1f);
+		
+		anim.SetFloat("Speed", nav.velocity.sqrMagnitude);
 	}
 }
