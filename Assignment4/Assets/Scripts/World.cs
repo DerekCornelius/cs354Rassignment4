@@ -377,6 +377,9 @@ public class World : MonoBehaviour {
 	// ***** PRIVATE FUNCTIONS *****
 
 	private void createFloor() {
+
+		int alternator = 0; // Used for creating elements every odd tile, etc.
+
 		for (int y = 0; y < numFloors; y++){
 
 			floors = new GameObject();
@@ -386,6 +389,8 @@ public class World : MonoBehaviour {
 			for (int x = 0; x < floorSize; x++) {
 				for (int z = 0; z < floorSize; z++) {
 
+					alternator++;
+					
 					// CELL GENERATION
 
 					Cell cell = new Cell (x, y, z);
@@ -465,36 +470,39 @@ public class World : MonoBehaviour {
 					// LIGHT GENERATION
 
 					float lightOffset = 0.3f;
-					if (z == 0) {
+					if (alternator % 2 == 0)
+					{
+						if (z == 0) {
 						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
 							new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2) + lightOffset), 
 							Quaternion.Euler(0, 0, 0));
 						torch.transform.parent = cellObj.transform;
 						torch.transform.localScale *= scale;
-					}
+						}
 
-					if (x == 0) {
-						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
-							new Vector3 (spacing * x - (spacing / 2) + lightOffset, yOffset, spacing * z), 
-							Quaternion.Euler(0, 90, 0));
-						torch.transform.parent = cellObj.transform;
-						torch.transform.localScale *= scale;
-					}
+						if (x == 0) {
+							GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+								new Vector3 (spacing * x - (spacing / 2) + lightOffset, yOffset, spacing * z), 
+								Quaternion.Euler(0, 90, 0));
+							torch.transform.parent = cellObj.transform;
+							torch.transform.localScale *= scale;
+						}
 
-					if (z == floorSize - 1) {
-						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
-							new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2) - lightOffset), 
-							Quaternion.Euler(0, 180, 0));
-						torch.transform.parent = cellObj.transform;
-						torch.transform.localScale *= scale;
-					}
+						if (z == floorSize - 1) {
+							GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+								new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2) - lightOffset), 
+								Quaternion.Euler(0, 180, 0));
+							torch.transform.parent = cellObj.transform;
+							torch.transform.localScale *= scale;
+						}
 
-					if (x == floorSize - 1) {
-						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
-							new Vector3 (spacing * x + (spacing / 2) - lightOffset, yOffset, spacing * z), 
-							Quaternion.Euler(0, 270, 0));
-						torch.transform.parent = cellObj.transform;
-						torch.transform.localScale *= scale;
+						if (x == floorSize - 1) {
+							GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+								new Vector3 (spacing * x + (spacing / 2) - lightOffset, yOffset, spacing * z), 
+								Quaternion.Euler(0, 270, 0));
+							torch.transform.parent = cellObj.transform;
+							torch.transform.localScale *= scale;
+						}
 					}
 
 				}
@@ -891,15 +899,20 @@ public class World : MonoBehaviour {
 	}
 
 	public void addElements () {
+
+		int alternator = 0; // Used for creating elements every odd tile, etc.
+
 		for (int y = 0; y < numFloors; y++) {			
 			for (int x = 0; x < floorSize - 1; x++) {
 				for (int z = 0; z < floorSize - 1; z++) {
+
+					alternator++;
+
+					// CORNER GENERATION
+
 					bool[] cornerCase = new bool[4];
-					/*cornerCase [0] = (cells [x, y, z].walls [3] || cells [x + 1, y, z].walls [1]) &&
-									(cells [x, y, z].walls [2] || cells [x, y, z + 1].walls [0]) &&
-									!(cells [x, y, z + 1].walls [3] || cells [x + 1, y, z + 1].walls [1] ||
-									cells [x + 1, y, z].walls [2] || cells [x + 1, y, z + 1].walls [0]);
-					*/
+
+
 					cornerCase [0] = (cells [x, y, z].checkBorder(3) != b_type.NONE) &&
 									 (cells [x, y, z].checkBorder(2) != b_type.NONE) &&
 									 (cells [x, y, z+1].checkBorder(3) == b_type.NONE) &&
@@ -929,7 +942,6 @@ public class World : MonoBehaviour {
 						GameObject newCorner = (GameObject) Instantiate (corner[0], 
 							new Vector3 (spacing * x + (spacing / 2), yOffset, spacing * z + (spacing / 2)), 
 							Quaternion.Euler(0, 0, 0));
-						//newCorner.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
 						newCorner.transform.localScale *= scale;
 						newCorner.transform.parent = cells[x,y,z].cellObj.transform;
 
