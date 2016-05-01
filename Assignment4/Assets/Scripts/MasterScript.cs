@@ -11,7 +11,7 @@ public class MasterScript : MonoBehaviour {
 	public int floorSize;
 	public int numFloors;
 	public GameObject player;
-	public GameObject monster;
+	public GameObject[] monster;
 	public GameObject[] ceiling;
 	public GameObject[] floor;
 	public GameObject[] wall;
@@ -35,13 +35,14 @@ public class MasterScript : MonoBehaviour {
 		player.name = "Player";
 		player.GetComponent<Player>().invincible = invincibility;
 
+		int randMonster = Random.Range(0, monster.Length);
 		//Initialize monster
-		monster = (GameObject) Instantiate (monster, w.cells[floorSize-1, 0, floorSize-1].pos, Quaternion.identity);
-		//monster = (GameObject) Instantiate (monster, w.cells[2, 0, 2].pos, Quaternion.identity);
-		monster.name = "Monster";
-		monster.GetComponent<Monster>().player = player;
-		monster.GetComponent<Monster>().floorSize = floorSize;
-		monster.GetComponent<Monster>().w = w;
+		GameObject thisMonster = (GameObject) Instantiate (monster[randMonster], w.cells[floorSize-1, 0, floorSize-1].pos, Quaternion.identity);
+		//GameObject thisMonster = (GameObject) Instantiate (monster[randMonster], w.cells[2, 0, 2].pos, Quaternion.identity);
+		thisMonster.name = "Monster";
+		thisMonster.GetComponent<Monster>().player = player;
+		thisMonster.GetComponent<Monster>().floorSize = floorSize;
+		thisMonster.GetComponent<Monster>().w = w;
 
 	}
 

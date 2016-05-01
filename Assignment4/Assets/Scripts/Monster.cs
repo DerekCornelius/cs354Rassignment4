@@ -8,13 +8,18 @@ public class Monster : MonoBehaviour {
 	public AudioSource ambience;
 	public int floorSize;
 
+	public AudioClip huntSound;
+	public AudioClip attackSound;
+
 	private float killRange = 2f;
 	private float detectRange = 20f;
 	private Animator anim;
 	private NavMeshAgent nav;
+	private AudioSource aSrc;
 	private int refreshRate = 5;
 	private int chaseCounter;
 	private bool huntMode;
+	private bool attacked = false;
 
 	private float huntSpeed = 4f;
 	private float exploreSpeed = 2f;
@@ -23,6 +28,7 @@ public class Monster : MonoBehaviour {
 	void Start () {
 		anim = GetComponent<Animator>();
 		nav = GetComponent<NavMeshAgent>();
+		aSrc = GetComponent<AudioSource>();
 		ambience = GameObject.FindGameObjectWithTag("Ambience").GetComponent<AudioSource>();
 		nav.speed = exploreSpeed;
 
@@ -34,36 +40,37 @@ public class Monster : MonoBehaviour {
 
 		// Set ambience to be louder the further the enemy is away
 		ambience.volume = Mathf.Clamp(playerDistance, 0, 1000) / 1000;
-		//ambience.ignoreListenerVolume = false;
-		//ambience.volume = 0f;
 
 		if (playerDistance <= detectRange && !huntMode)
 		{
-			//Ray ray = new Ray(this.transform.position, (player.transform.position - this.transform.position));
 			RaycastHit hit;
-
-			//Debug.Log("Monster ray hit target: " + hit.transform.gameObject.name);
-			//if (Physics.Raycast(ray, out hit, detectRange) && hit.transform.gameObject == player)
 			Physics.Linecast(transform.position, player.transform.position, out hit);
+			//Debug.Log("Monster ray hit target: " + hit.transform.gameObject.name);
+
 			if (hit.transform.gameObject == player)
 			{
+				aSrc.clip = huntSound;
+				aSrc.Play();
 				Debug.Log("Monster going into hunt mode");
 				huntMode = true;
 				nav.speed = huntSpeed;
 			}
-			//Debug.Log("Monster ray hit target: " + hit.transform.gameObject.name);
 
 		}
 		else if (playerDistance > detectRange && huntMode)
 		{
+			Debug.Log("Monster leaving hunt mode");
 			huntMode = false;
 			nav.speed = exploreSpeed;
 		}
 
 
-		if (playerDistance <= killRange && huntMode)
+		if (playerDistance <= killRange && huntMode && !attacked)
 		{	
+			attacked = true;
 			anim.SetBool("Attack", true);
+			aSrc.clip = attackSound;
+			aSrc.Play();
 			player.GetComponent<Player>().Kill();
 		}
 
