@@ -24,13 +24,16 @@ public class InteractableObject : MonoBehaviour {
 	[HideInInspector]
 	public int keyRequired;
 
+	[HideInInspector]
+	public Player player;
+
 	private bool isToggled = false;
 	private float DoorOpenAngle = 90f;
 	private float smooth = 2.0f;
 
 	private float volModifier = 0.5f;
 
-	public void Interact () {
+	virtual public void Interact () {
 		if (isInteracting == false)
 			isInteracting = true;
 
@@ -56,10 +59,31 @@ public class InteractableObject : MonoBehaviour {
 			}
 			else
 			{
-				aSrc.clip = aClips[3];
-				aSrc.Play();
+				bool keyFound = false;
+
+				for (int i = 0; i < player.keys.Length; i++)
+				{
+					Key thisKey = player.keys[i];
+					if (thisKey != null && thisKey.keyLevel == keyRequired)
+					{
+						Debug.Log("Unlocking: " + keyRequired);
+						keyFound = true;
+						isLocked = false;
+						aSrc.clip = aClips[4];
+						aSrc.Play();
+						break;
+					}
+				}
+
+				if (!keyFound)
+				{	
+					aSrc.clip = aClips[3];
+					aSrc.Play();
+					Debug.Log("Key required: " + keyRequired);
+				}
+
 				isInteracting = false;
-				Debug.Log("Key required: " + keyRequired);
+
 			}
 
 		}

@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
 	public float interactDistance = 5.0f;
 	public bool invincible = false;
 	public bool isDead = false;
-	public List<GameObject> keys;
+	public Key[] keys = new Key[10];
 
 	private Camera camera;
 	private GameObject curTarget;
@@ -18,6 +18,7 @@ public class Player : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		camera = GetComponentInChildren<Camera>();
+		//keys = new List<Key>(10);
 	}
 	
 	// Update is called once per frame

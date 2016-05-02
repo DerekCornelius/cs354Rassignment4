@@ -21,6 +21,9 @@ public class Monster : MonoBehaviour {
 	private bool huntMode;
 	private bool attacked = false;
 
+	private int huntCounter = 0;
+	private int huntWaitTime = 10;
+
 	private float huntSpeed = 4f;
 	private float exploreSpeed = 2f;
 
@@ -54,6 +57,7 @@ public class Monster : MonoBehaviour {
 				Debug.Log("Monster going into hunt mode");
 				huntMode = true;
 				nav.speed = huntSpeed;
+				nav.SetDestination(this.transform.position);
 			}
 
 		}
@@ -62,10 +66,11 @@ public class Monster : MonoBehaviour {
 			Debug.Log("Monster leaving hunt mode");
 			huntMode = false;
 			nav.speed = exploreSpeed;
+			huntCounter = 0;
 		}
 
 
-		if (playerDistance <= killRange && huntMode && !attacked)
+		if (playerDistance <= killRange && huntMode && !attacked && huntCounter > huntWaitTime)
 		{	
 			attacked = true;
 			anim.SetBool("Attack", true);
@@ -77,10 +82,13 @@ public class Monster : MonoBehaviour {
 
 		if (huntMode)
 		{
-			if (player != null)
+			if (huntCounter++ > huntWaitTime)
+			{
+				if (player != null)
 				nav.SetDestination(player.transform.position);
-			else
-				Debug.Log("Monster error: player is null");
+				else
+					Debug.Log("Monster error: player is null");
+			}
 		}
 		else
 		{

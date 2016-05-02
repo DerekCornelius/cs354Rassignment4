@@ -9,7 +9,7 @@ public class World : MonoBehaviour {
 	public float scale;
 	public int floorSize;
 	public int numFloors;
-	//public GameObject player;
+	public GameObject player;
 	public GameObject key;
 	public GameObject[] ceiling;
 	public GameObject[] floor;
@@ -47,7 +47,7 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k, GameObject p) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -60,7 +60,7 @@ public class World : MonoBehaviour {
 		corner = cn;
 		miscellaneous = m;
 		key = k;
-
+		player = p;
 
 
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
@@ -114,7 +114,7 @@ public class World : MonoBehaviour {
 
 		connectAllCellsTo(0, 0, 0, 0, false);
 
-		placeAllKeysStartingFrom (0, 0, 0, true);
+		placeAllKeysStartingFrom (0, 0, 0, false);
 
 		addElements (); 
 
@@ -904,7 +904,7 @@ public class World : MonoBehaviour {
 		connectAllCellsTo (x, y, z, nextDepth, debug); //this function repeats itself until all cells are connected
 	}
 
-	public void addElements () {
+	public void addElements (bool debug = false) {
 
 		int alternator = 0; // Used for creating elements every odd tile, etc.
 		List<List<Cell>> keyList = new List<List<Cell>>(); //used for setting what tiles are valid for key placement
@@ -978,7 +978,7 @@ public class World : MonoBehaviour {
 								float rZ = Random.Range (0, spacing);
 
 								GameObject obj = (GameObject) Instantiate (miscellaneous[r2], 
-									new Vector3 (spacing * x + rX, yOffset, spacing * z + rZ), 
+									new Vector3 (spacing * x + rX, 0.6f, spacing * z + rZ), 
 									Quaternion.Euler(0, 0, 0));
 								obj.transform.parent = tgtCell.cellObj.transform;
 								obj.transform.localScale *= scale;
@@ -1039,14 +1039,31 @@ public class World : MonoBehaviour {
 		}
 
 		//RANDOM KEY GENERATION AND PLACEMENT
-		Debug.Log(maxKeyLevel);
+		Debug.Log("Max key level: " + maxKeyLevel);
 		for (int i = 0; i < maxKeyLevel; i++) {
 			List<Cell> currentKeyLevel = keyList [i];
 			int randomTargetKeyCell = Random.Range (0, currentKeyLevel.Count);
 			Cell keyCell = currentKeyLevel [randomTargetKeyCell];
 
-			keyCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 1, 0);
+			float r1 = Random.Range(-spacing/2, spacing/2);
+			float r2 = Random.Range(-spacing/2, spacing/2);
 
+
+			if (debug)
+				keyCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 1, 0);
+
+			float yOffset = 0.01f;
+			GameObject newKey = (GameObject) Instantiate (key, 
+				new Vector3 (spacing * keyCell.index[0] + (r1 / 1.5f), 
+							 keyCell.index[1] * wallHeight + yOffset, 
+							 spacing * keyCell.index[2] + (r2 / 1.5f)), 
+									Quaternion.Euler(0, r1 + r2, 0));
+									newKey.transform.parent = keyCell.cellObj.transform;
+									newKey.transform.localScale *= scale;
+			newKey.GetComponent<Key>().keyLevel = i;
+			newKey.GetComponent<Key>().player = player.GetComponent<Player>();
+			newKey.name = "Key " + (i + 1);
+			newKey.transform.parent = keyCell.cellObj.transform;
 		}
 	}
 
@@ -1241,6 +1258,7 @@ public class World : MonoBehaviour {
 				}
 				iObj.isLocked = true;
 				iObj.keyRequired = curCell.keyDepth;
+				iObj.player = player.GetComponent<Player>();
 			}
 
 
