@@ -10,6 +10,7 @@ public class World : MonoBehaviour {
 	public int floorSize;
 	public int numFloors;
 	//public GameObject player;
+	public GameObject key;
 	public GameObject[] ceiling;
 	public GameObject[] floor;
 	public GameObject[] wall;
@@ -23,6 +24,7 @@ public class World : MonoBehaviour {
 
 	private RoomBuilder rb;
 	private GameObject floors;
+	private int maxKeyLevel;
 
 	/*
 	 * Public Methods:
@@ -45,7 +47,7 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -57,6 +59,7 @@ public class World : MonoBehaviour {
 		door = d;
 		corner = cn;
 		miscellaneous = m;
+		key = k;
 
 
 
@@ -111,7 +114,9 @@ public class World : MonoBehaviour {
 
 		connectAllCellsTo(0, 0, 0, 0, false);
 
-		addElements ();
+		placeAllKeysStartingFrom (0, 0, 0, true);
+
+		addElements (); 
 
 	}
 
@@ -469,15 +474,16 @@ public class World : MonoBehaviour {
 
 					// LIGHT GENERATION
 
-					float lightOffset = 0.3f;
+					/*float lightOffset = 0.3f;
 					if (alternator % 2 == 0)
 					{
 						if (z == 0) {
-						GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
-							new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2) + lightOffset), 
-							Quaternion.Euler(0, 0, 0));
-						torch.transform.parent = cellObj.transform;
-						torch.transform.localScale *= scale;
+							Debug.Log ("Creating z torch");
+							GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+								new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2) + lightOffset), 
+								Quaternion.Euler(0, 0, 0));
+							torch.transform.parent = cellObj.transform;
+							torch.transform.localScale *= scale;
 						}
 
 						if (x == 0) {
@@ -503,7 +509,7 @@ public class World : MonoBehaviour {
 							torch.transform.parent = cellObj.transform;
 							torch.transform.localScale *= scale;
 						}
-					}
+					}*/
 
 				}
 			}
@@ -901,6 +907,9 @@ public class World : MonoBehaviour {
 	public void addElements () {
 
 		int alternator = 0; // Used for creating elements every odd tile, etc.
+		List<List<Cell>> keyList = new List<List<Cell>>(); //used for setting what tiles are valid for key placement
+		for (int i = 0; i < maxKeyLevel; i++)
+			keyList.Add (new List<Cell> ());
 
 		for (int y = 0; y < numFloors; y++) {			
 			for (int x = 0; x < floorSize - 1; x++) {
@@ -946,9 +955,243 @@ public class World : MonoBehaviour {
 						newCorner.transform.parent = cells[x,y,z].cellObj.transform;
 
 					}
+
+					// RANDOM LIGHT GENERATION
+					float lightOffset = 0.3f;
+
+					for (int i = 0; i < 4; i++) {
+						bool validCell = true;
+						Cell tgtCell = cells [x, y, z];
+						int r1 = Random.Range (0, 5);
+						int r2 = Random.Range (1, 3);
+
+						for (int j = 0; j < 4; j++) {
+							if (tgtCell.checkBorder (j) == b_type.DOOR)
+								validCell = false;
+						}
+						if (validCell) {
+							
+
+							if (r1 == 1 && tgtCell.cellType == c_type.ROOM) {
+								//float objYOffset = 
+								float rX = Random.Range (0, spacing);
+								float rZ = Random.Range (0, spacing);
+
+								GameObject obj = (GameObject) Instantiate (miscellaneous[r2], 
+									new Vector3 (spacing * x + rX, yOffset, spacing * z + rZ), 
+									Quaternion.Euler(0, 0, 0));
+								obj.transform.parent = tgtCell.cellObj.transform;
+								obj.transform.localScale *= scale;
+							}
+						}
+
+
+
+						if (r1 == 0) 
+						{
+							
+
+							if (i == 0 && tgtCell.checkBorder(i) == b_type.WALL) {
+								GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+									new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2) + lightOffset), 
+									Quaternion.Euler(0, 0, 0));
+								torch.transform.parent = tgtCell.cellObj.transform;
+								torch.transform.localScale *= scale;
+							}
+
+							if (i == 1 && tgtCell.checkBorder(i) == b_type.WALL) {
+								GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+									new Vector3 (spacing * x - (spacing / 2) + lightOffset, yOffset, spacing * z), 
+									Quaternion.Euler(0, 90, 0));
+								torch.transform.parent = tgtCell.cellObj.transform;
+								torch.transform.localScale *= scale;
+							}
+
+							if (i == 2 && tgtCell.checkBorder(i) == b_type.WALL) {
+								GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+									new Vector3 (spacing * x, yOffset, spacing * z + (spacing / 2) - lightOffset), 
+									Quaternion.Euler(0, 180, 0));
+								torch.transform.parent = tgtCell.cellObj.transform;
+								torch.transform.localScale *= scale;
+							}
+
+							if (i == 3 && tgtCell.checkBorder(i) == b_type.WALL) {
+								GameObject torch = (GameObject) Instantiate (miscellaneous[0], 
+									new Vector3 (spacing * x + (spacing / 2) - lightOffset, yOffset, spacing * z), 
+									Quaternion.Euler(0, 270, 0));
+								torch.transform.parent = tgtCell.cellObj.transform;
+								torch.transform.localScale *= scale;
+							}
+
+						}
+
+					}
+
+					//RANDOM KEY LIST CREATION
+
+					Cell curCell = cells [x, y, z];
+					int currentKeyDepth = curCell.keyDepth;
+					List<Cell> listBasedOnKeyDepth = keyList [currentKeyDepth];
+					listBasedOnKeyDepth.Add (curCell);
+
 				}
 			}
 		}
+
+		//RANDOM KEY GENERATION AND PLACEMENT
+		Debug.Log(maxKeyLevel);
+		for (int i = 0; i < maxKeyLevel; i++) {
+			List<Cell> currentKeyLevel = keyList [i];
+			int randomTargetKeyCell = Random.Range (0, currentKeyLevel.Count);
+			Cell keyCell = currentKeyLevel [randomTargetKeyCell];
+
+			keyCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 1, 0);
+
+		}
+	}
+
+	//key placement algorithm
+	public void placeAllKeysStartingFrom(int sX, int sY, int sZ, bool debug = false) {
+
+		Queue<int[]> toBeSearched = new Queue<int[]> ();
+
+		int startDepth = 0;
+		int keyLevel = 1;
+
+		int[] start = { sX, sY, sZ, startDepth, keyLevel };
+		toBeSearched.Enqueue (start);
+
+		//flags all rooms based on key depth
+		while (toBeSearched.Count != 0) {
+			int[] next = toBeSearched.Dequeue ();
+			Queue<int[]> toAdd = breadthFirstKeyPlacement (next [0], next [1], next [2], next [3], next [4], debug, 10);
+			while (toAdd.Count != 0) {
+				int[] nextI = toAdd.Dequeue ();
+				if (keyLevel < nextI [4])
+					keyLevel = nextI [4];
+				toBeSearched.Enqueue (nextI);
+			}
+		}
+			
+		//keys are placed in appropriate depth rooms in addElements() function!!
+		maxKeyLevel = keyLevel;
+	}
+
+	//key depth determination algorithm
+	public Queue<int[]> breadthFirstKeyPlacement(int sX, int sY, int sZ, int startDepth, int keyLevel, bool debug = false, int LOCK_DEPTH = 10) { //the s is for Starting
+
+
+		Queue<Cell> Q = new Queue<Cell>();
+		Queue<int[]> Qi = new Queue<int[]> ();
+		Cell root = cells [sX, sY, sZ];
+		root.keyDepth = startDepth;
+		Q.Enqueue(root);
+
+		while (Q.Count != 0) {
+			Cell curCell = Q.Dequeue ();
+
+			if (debug) {
+				if (keyLevel == 1)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
+				else if (keyLevel == 2)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 0, 0);
+				else if (keyLevel == 3)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 0, 1);
+				else if (keyLevel == 4)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (.5f, .27f, .1f);
+				else if (keyLevel == 5)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (.1f, .5f, .27f);
+				else if (keyLevel == 6)
+					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (.27f, .1f, .5f);
+				
+			}
+
+			int nX = curCell.index[0];
+			int nY = curCell.index[1];
+			int nZ = curCell.index[2];
+
+			b_type n = curCell.checkBorder (0);
+			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
+				Cell next = cells [nX, nY, nZ - 1];
+				if (next.keyDepth == -1) {
+					next.keyDepth = curCell.keyDepth;
+					Q.Enqueue (next);
+				}
+			} else if (n == b_type.DOOR) {
+				Cell next = cells[nX, nY, nZ - 1];
+				if (next.keyDepth == -1) {
+					//LOCK DOOR 0
+					if (debug)
+						curCell.doors[0].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+						//Destroy(curCell.doors[0]);
+					int[] nextSearch = {nX, nY, nZ - 1, curCell.keyDepth + 1, keyLevel + 1};
+					Qi.Enqueue (nextSearch);
+				}
+			}
+
+			n = curCell.checkBorder (1);
+			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
+				Cell next = cells [nX - 1, nY, nZ];
+				if (next.keyDepth == -1) {
+					next.keyDepth = curCell.keyDepth;
+					Q.Enqueue (next);
+				}
+			} else if (n == b_type.DOOR) {
+				Cell next = cells[nX - 1, nY, nZ];
+				if (next.keyDepth == -1) {
+					//LOCK DOOR 1
+					if (debug)
+						curCell.doors[1].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+						//Destroy(curCell.doors[1]);
+						
+					int[] nextSearch = {nX - 1, nY, nZ, curCell.keyDepth + 1, keyLevel + 1};
+					Qi.Enqueue (nextSearch);
+				}
+			}
+
+			n = curCell.checkBorder (2);
+			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
+				Cell next = cells [nX, nY, nZ + 1];
+				if (next.keyDepth == -1) {
+					next.keyDepth = curCell.keyDepth;
+					Q.Enqueue (next);
+				}
+			} else if (n == b_type.DOOR) {
+				Cell next = cells[nX, nY, nZ + 1];
+				if (next.keyDepth == -1) {
+					//LOCK DOOR 2
+					if (debug)
+						curCell.doors[2].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+						//Destroy(curCell.doors[2]);
+
+					int[] nextSearch = {nX, nY, nZ + 1, curCell.keyDepth + 1, keyLevel + 1};
+					Qi.Enqueue (nextSearch);
+				}
+			}
+
+			n = curCell.checkBorder (3);
+			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
+				Cell next = cells [nX + 1, nY, nZ];
+				if (next.keyDepth == -1) {
+					next.keyDepth = curCell.keyDepth;
+					Q.Enqueue (next);
+				}
+			} else if (n == b_type.DOOR) {
+				Cell next = cells[nX + 1, nY, nZ];
+				if (next.keyDepth == -1) {
+					//LOCK DOOR 3
+					if (debug)
+						curCell.doors[3].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
+						//Destroy(curCell.doors[0]);
+						
+					int[] nextSearch = {nX + 1, nY, nZ, curCell.keyDepth + 1, keyLevel + 1};
+					Qi.Enqueue (nextSearch);
+				}
+			}
+		}
+
+		return Qi;
+
 	}
 
 } //end of class

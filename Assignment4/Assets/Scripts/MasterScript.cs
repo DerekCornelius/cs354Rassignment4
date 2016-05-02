@@ -11,6 +11,7 @@ public class MasterScript : MonoBehaviour {
 	public int floorSize;
 	public int numFloors;
 	public GameObject player;
+	public GameObject key;
 	public GameObject[] monster;
 	public GameObject[] ceiling;
 	public GameObject[] floor;
@@ -28,7 +29,7 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner, miscellaneous);
+		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner, miscellaneous, key);
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
@@ -43,6 +44,9 @@ public class MasterScript : MonoBehaviour {
 		thisMonster.GetComponent<Monster>().player = player;
 		thisMonster.GetComponent<Monster>().floorSize = floorSize;
 		thisMonster.GetComponent<Monster>().w = w;
+
+		if (!enableCeilings)
+			RenderSettings.fog = false;
 
 	}
 

@@ -11,6 +11,7 @@ public class Cell : MonoBehaviour {
 	//Derek added these
 	public c_type cellType;
 	public int depth = -1;
+	public int keyDepth = -1;
 
 	/*
 	Wall array index by orientation:
