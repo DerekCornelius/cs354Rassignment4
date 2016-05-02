@@ -29,7 +29,8 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, floor, wall, door, corner, miscellaneous, key);
+		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, 
+					   floor, wall, door, corner, miscellaneous, key);
 
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);

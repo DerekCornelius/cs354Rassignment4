@@ -3,29 +3,71 @@ using System.Collections;
 
 public class InteractableObject : MonoBehaviour {
 
+	public AudioSource aSrc;
+	public AudioClip[] aClips;
+
+	// Door audio clips:
+	// 0 : open
+	// 1 : open 2
+	// 2 : close
+	// 3 : locked
+	// 4 : unlocked
 
 	public bool isDoor;
 
 	[HideInInspector]
+	public bool isLocked;
+
+	[HideInInspector]
 	public bool isInteracting = false;
+
+	[HideInInspector]
+	public int keyRequired;
 
 	private bool isToggled = false;
 	private float DoorOpenAngle = 90f;
 	private float smooth = 2.0f;
 
+	private float volModifier = 0.5f;
+
 	public void Interact () {
 		if (isInteracting == false)
 			isInteracting = true;
 
+		// DOOR INTERACTIONS
+
 		if (isDoor)
 		{
-			Debug.Log("I am a door being interacted with");
+			//Debug.Log("I am a door being interacted with");
+
+			if (!isLocked)
+			{
+				if (!isToggled)
+				{
+					//int r1 = Random.Range(0, 2);
+					//aSrc.clip = aClips[r1];
+					//aSrc.Play();
+				}
+				else
+				{
+					aSrc.clip = aClips[2];
+					aSrc.Play();
+				}
+			}
+			else
+			{
+				aSrc.clip = aClips[3];
+				aSrc.Play();
+				isInteracting = false;
+				Debug.Log("Key required: " + keyRequired);
+			}
+
 		}
 	}
 
 	// Use this for initialization
 	void Start () {
-	
+		aSrc.volume = volModifier;
 	}
 	
 	// Update is called once per frame
@@ -33,7 +75,10 @@ public class InteractableObject : MonoBehaviour {
 
 		if (isInteracting)
 		{
-			if (isDoor)
+
+			// DOOR UPDATE INTERACTIONS	
+
+			if (isDoor && !isLocked)
 			{
 				Quaternion target;
 
@@ -48,7 +93,14 @@ public class InteractableObject : MonoBehaviour {
 					isInteracting = false;
 					isToggled = !isToggled;	
 				}
+
+
 			}
+			else
+			{
+				
+			}
+
 		}
 
 	}

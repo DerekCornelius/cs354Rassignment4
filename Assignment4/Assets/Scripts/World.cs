@@ -1090,6 +1090,14 @@ public class World : MonoBehaviour {
 		while (Q.Count != 0) {
 			Cell curCell = Q.Dequeue ();
 
+
+			//Floor tile changes
+			/*if (curCell.keyDepth >= 1)
+			{
+				Material[] newMats = floor[1].GetComponent<MeshRenderer>().sharedMaterials;
+				curCell.floor.GetComponent<MeshRenderer>().sharedMaterials = newMats;
+			}*/
+
 			if (debug) {
 				if (keyLevel == 1)
 					curCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (0, 1, 0);
@@ -1110,6 +1118,14 @@ public class World : MonoBehaviour {
 			int nY = curCell.index[1];
 			int nZ = curCell.index[2];
 
+			int doorReplaceType = 1;
+			float yOffset = ((wallHeight / 2) * scale) + (nY * wallHeight * scale);
+			GameObject newDoor = null;
+
+
+
+
+
 			b_type n = curCell.checkBorder (0);
 			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
 				Cell next = cells [nX, nY, nZ - 1];
@@ -1120,14 +1136,22 @@ public class World : MonoBehaviour {
 			} else if (n == b_type.DOOR) {
 				Cell next = cells[nX, nY, nZ - 1];
 				if (next.keyDepth == -1) {
-					//LOCK DOOR 0
-					if (debug)
-						curCell.doors[0].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
-						//Destroy(curCell.doors[0]);
+
+					// REPLACE AND LOCK DOOR 0
+
+					int doorFacing = 0;
+					Destroy(curCell.doors[doorFacing]);
+
+					newDoor = curCell.doors [doorFacing] = cells [nX, nY, nZ - 1].doors [2] = (GameObject)Instantiate (door [doorReplaceType], 
+						new Vector3 (spacing * nX, yOffset, spacing * nZ - (spacing / 2)), 
+						Quaternion.Euler (0, doorFacing * 90, 0));
+
+					
 					int[] nextSearch = {nX, nY, nZ - 1, curCell.keyDepth + 1, keyLevel + 1};
 					Qi.Enqueue (nextSearch);
 				}
 			}
+
 
 			n = curCell.checkBorder (1);
 			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
@@ -1139,10 +1163,16 @@ public class World : MonoBehaviour {
 			} else if (n == b_type.DOOR) {
 				Cell next = cells[nX - 1, nY, nZ];
 				if (next.keyDepth == -1) {
-					//LOCK DOOR 1
-					if (debug)
-						curCell.doors[1].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
-						//Destroy(curCell.doors[1]);
+
+					// REPLACE AND LOCK DOOR 1
+
+					int doorFacing = 1;
+					Destroy(curCell.doors[doorFacing]);
+
+					newDoor = curCell.doors [doorFacing] = cells [nX - 1, nY, nZ].doors [3] = (GameObject)Instantiate (door [doorReplaceType], 
+						new Vector3 (spacing * nX - (spacing / 2), yOffset, spacing * nZ), 
+					Quaternion.Euler (0, doorFacing * 90, 0));
+
 						
 					int[] nextSearch = {nX - 1, nY, nZ, curCell.keyDepth + 1, keyLevel + 1};
 					Qi.Enqueue (nextSearch);
@@ -1159,10 +1189,15 @@ public class World : MonoBehaviour {
 			} else if (n == b_type.DOOR) {
 				Cell next = cells[nX, nY, nZ + 1];
 				if (next.keyDepth == -1) {
-					//LOCK DOOR 2
-					if (debug)
-						curCell.doors[2].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
-						//Destroy(curCell.doors[2]);
+
+					// REPLACE AND LOCK DOOR 2
+
+					int doorFacing = 2;
+					Destroy(curCell.doors[doorFacing]);
+
+					newDoor = curCell.doors [doorFacing] = cells [nX, nY, nZ + 1].doors [0] = (GameObject)Instantiate (door [doorReplaceType], 
+						new Vector3 (spacing * nX, yOffset, spacing * nZ + (spacing / 2)), 
+						Quaternion.Euler (0, doorFacing * 90, 0));
 
 					int[] nextSearch = {nX, nY, nZ + 1, curCell.keyDepth + 1, keyLevel + 1};
 					Qi.Enqueue (nextSearch);
@@ -1179,15 +1214,36 @@ public class World : MonoBehaviour {
 			} else if (n == b_type.DOOR) {
 				Cell next = cells[nX + 1, nY, nZ];
 				if (next.keyDepth == -1) {
-					//LOCK DOOR 3
-					if (debug)
-						curCell.doors[3].GetComponent<MeshRenderer>().material.color = new Color (1, 0, 0);
-						//Destroy(curCell.doors[0]);
+					// REPLACE AND LOCK DOOR 1
+
+					int doorFacing = 3;
+					Destroy(curCell.doors[doorFacing]);
+
+					newDoor = curCell.doors [doorFacing] = cells [nX + 1, nY, nZ].doors [1] = (GameObject)Instantiate (door [doorReplaceType], 
+						new Vector3 (spacing * nX + (spacing / 2), yOffset, spacing * nZ), 
+					Quaternion.Euler (0, doorFacing * 90, 0));
 						
 					int[] nextSearch = {nX + 1, nY, nZ, curCell.keyDepth + 1, keyLevel + 1};
 					Qi.Enqueue (nextSearch);
 				}
 			}
+
+			// Apply (globally applicable) changes to replaced doors if there are any
+			if (newDoor != null)
+			{
+				newDoor.transform.parent = curCell.cellObj.transform;
+				newDoor.transform.localScale *= scale;
+				newDoor.name = "Locked door: (" + nX + ", " + nY + ", " + nZ + ") KD: " + curCell.keyDepth;
+				InteractableObject iObj = newDoor.GetComponent<InteractableObject>();
+				if (iObj == null)
+				{
+					iObj = newDoor.GetComponentInChildren<InteractableObject>();
+				}
+				iObj.isLocked = true;
+				iObj.keyRequired = curCell.keyDepth;
+			}
+
+
 		}
 
 		return Qi;
