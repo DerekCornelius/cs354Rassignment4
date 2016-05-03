@@ -1137,7 +1137,7 @@ public class World : MonoBehaviour {
 
 			int doorReplaceType = 1;
 			float yOffset = ((wallHeight / 2) * scale) + (nY * wallHeight * scale);
-			GameObject newDoor = null;
+			GameObject[] newDoor = new GameObject[4];
 
 
 
@@ -1159,7 +1159,7 @@ public class World : MonoBehaviour {
 					int doorFacing = 0;
 					Destroy(curCell.doors[doorFacing]);
 
-					newDoor = curCell.doors [doorFacing] = cells [nX, nY, nZ - 1].doors [2] = (GameObject)Instantiate (door [doorReplaceType], 
+					newDoor[doorFacing] = curCell.doors [doorFacing] = cells [nX, nY, nZ - 1].doors [2] = (GameObject)Instantiate (door [doorReplaceType], 
 						new Vector3 (spacing * nX, yOffset, spacing * nZ - (spacing / 2)), 
 						Quaternion.Euler (0, doorFacing * 90, 0));
 
@@ -1186,7 +1186,7 @@ public class World : MonoBehaviour {
 					int doorFacing = 1;
 					Destroy(curCell.doors[doorFacing]);
 
-					newDoor = curCell.doors [doorFacing] = cells [nX - 1, nY, nZ].doors [3] = (GameObject)Instantiate (door [doorReplaceType], 
+					newDoor[doorFacing] = curCell.doors [doorFacing] = cells [nX - 1, nY, nZ].doors [3] = (GameObject)Instantiate (door [doorReplaceType], 
 						new Vector3 (spacing * nX - (spacing / 2), yOffset, spacing * nZ), 
 					Quaternion.Euler (0, doorFacing * 90, 0));
 
@@ -1212,7 +1212,7 @@ public class World : MonoBehaviour {
 					int doorFacing = 2;
 					Destroy(curCell.doors[doorFacing]);
 
-					newDoor = curCell.doors [doorFacing] = cells [nX, nY, nZ + 1].doors [0] = (GameObject)Instantiate (door [doorReplaceType], 
+					newDoor[doorFacing] = curCell.doors [doorFacing] = cells [nX, nY, nZ + 1].doors [0] = (GameObject)Instantiate (door [doorReplaceType], 
 						new Vector3 (spacing * nX, yOffset, spacing * nZ + (spacing / 2)), 
 						Quaternion.Euler (0, doorFacing * 90, 0));
 
@@ -1236,7 +1236,7 @@ public class World : MonoBehaviour {
 					int doorFacing = 3;
 					Destroy(curCell.doors[doorFacing]);
 
-					newDoor = curCell.doors [doorFacing] = cells [nX + 1, nY, nZ].doors [1] = (GameObject)Instantiate (door [doorReplaceType], 
+					newDoor[doorFacing] = curCell.doors [doorFacing] = cells [nX + 1, nY, nZ].doors [1] = (GameObject)Instantiate (door [doorReplaceType], 
 						new Vector3 (spacing * nX + (spacing / 2), yOffset, spacing * nZ), 
 					Quaternion.Euler (0, doorFacing * 90, 0));
 						
@@ -1246,20 +1246,24 @@ public class World : MonoBehaviour {
 			}
 
 			// Apply (globally applicable) changes to replaced doors if there are any
-			if (newDoor != null)
+			for (int i = 0; i < 4; i++) 
 			{
-				newDoor.transform.parent = curCell.cellObj.transform;
-				newDoor.transform.localScale *= scale;
-				newDoor.name = "Locked door: (" + nX + ", " + nY + ", " + nZ + ") KD: " + curCell.keyDepth;
-				InteractableObject iObj = newDoor.GetComponent<InteractableObject>();
-				if (iObj == null)
+				if (newDoor[i] != null)
 				{
-					iObj = newDoor.GetComponentInChildren<InteractableObject>();
+					newDoor[i].transform.parent = curCell.cellObj.transform;
+					newDoor[i].transform.localScale *= scale;
+					newDoor[i].name = "Locked door: (" + nX + ", " + nY + ", " + nZ + ") KD: " + curCell.keyDepth;
+					InteractableObject iObj = newDoor[i].GetComponent<InteractableObject>();
+					if (iObj == null)
+					{
+						iObj = newDoor[i].GetComponentInChildren<InteractableObject>();
+					}
+					iObj.isLocked = true;
+					iObj.keyRequired = curCell.keyDepth;
+					iObj.player = player.GetComponent<Player>();
 				}
-				iObj.isLocked = true;
-				iObj.keyRequired = curCell.keyDepth;
-				iObj.player = player.GetComponent<Player>();
 			}
+
 
 
 		}
