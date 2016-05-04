@@ -11,6 +11,7 @@ public class Monster : MonoBehaviour {
 	public bool isMinorMonster;
 	public AudioClip huntSound;
 	public AudioClip attackSound;
+	public float exploreSpeed = 2f;
 
 	private float killRange = 2f;
 	private float detectRange = 20f;
@@ -23,10 +24,9 @@ public class Monster : MonoBehaviour {
 	private bool attacked = false;
 
 	private int huntCounter = 0;
-	private int huntWaitTime = 10;
+	private int huntWaitTime = 5;
 
-	private float huntSpeed = 4f;
-	private float exploreSpeed = 2f;
+	private float huntSpeed = 5f;
 
 	// Use this for initialization
 	void Start () {
@@ -46,6 +46,11 @@ public class Monster : MonoBehaviour {
 	public void setExploreSpeed(float newSpd)
 	{
 		exploreSpeed = newSpd;
+	}
+
+	public void setDetectionRadius(float newRadius)
+	{
+		detectRange = newRadius;
 	}
 	
 	// Update is called once per frame

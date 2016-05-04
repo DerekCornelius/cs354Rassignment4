@@ -25,6 +25,7 @@ public class Player : MonoBehaviour {
 
 	private int msgCounter = 0;
 	private bool isDisplayingMsg;
+	private Quaternion deathRot;
 
 	void OnGUI(){
 
@@ -56,38 +57,44 @@ public class Player : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-		RaycastHit hit;
-
-		if (Input.GetMouseButtonDown(0) && curInterTarget != null)
-            curInterTarget.GetComponent<InteractableObject>().Interact();
-        
-		if (Physics.Raycast(ray, out hit))
+		if (isDead)
 		{
-			if (hit.transform.gameObject != curTarget || curInterTarget == null)
-			{
-				curTarget = hit.transform.gameObject;
-
-				if (curInterTarget != null)
-					DehighlightObj(curInterTarget);
-
-				//Debug.Log("I'm now looking at " + curTarget.name);
-				if (curTarget.GetComponent<InteractableObject>() != null)
-				{
-					curInterTarget = curTarget;
-				}
-				else if (curTarget.transform.GetComponentInParent<InteractableObject>() != null)
-				{
-					curInterTarget = curTarget.transform.parent.gameObject;
-				}
-
-			}
+			camera.transform.rotation = deathRot;
 		}
 		else
-			Debug.Log("I'm looking at nothing");
+		{
+			Ray ray = camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+			RaycastHit hit;
 
-		HighlightObj();
+			if (Input.GetMouseButtonDown(0) && curInterTarget != null)
+	            curInterTarget.GetComponent<InteractableObject>().Interact();
+	        
+			if (Physics.Raycast(ray, out hit))
+			{
+				if (hit.transform.gameObject != curTarget || curInterTarget == null)
+				{
+					curTarget = hit.transform.gameObject;
 
+					if (curInterTarget != null)
+						DehighlightObj(curInterTarget);
+
+					//Debug.Log("I'm now looking at " + curTarget.name);
+					if (curTarget.GetComponent<InteractableObject>() != null)
+					{
+						curInterTarget = curTarget;
+					}
+					else if (curTarget.transform.GetComponentInParent<InteractableObject>() != null)
+					{
+						curInterTarget = curTarget.transform.parent.gameObject;
+					}
+
+				}
+			}
+			else
+				Debug.Log("I'm looking at nothing");
+
+			HighlightObj();
+		}
 	}
 
 	void DehighlightObj (GameObject obj) {
@@ -161,6 +168,7 @@ public class Player : MonoBehaviour {
 			this.GetComponent<CharacterController>().enabled = false;
 			camera.GetComponent<SphereCollider>().enabled = true;
 			camera.GetComponent<Rigidbody>().useGravity = true;
+			deathRot = camera.transform.rotation;
 			camera.transform.parent = null;
 			this.enabled = false;
 			isDead = true;

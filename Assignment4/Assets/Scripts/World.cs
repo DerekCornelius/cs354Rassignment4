@@ -17,6 +17,7 @@ public class World : MonoBehaviour {
 	public GameObject[] door;
 	public GameObject[] corner;
 	public GameObject[] miscellaneous;
+	public Material[] extraFloorMats;
 
 	public Cell[,,] cells;
 	public float spacing;
@@ -25,6 +26,9 @@ public class World : MonoBehaviour {
 	private RoomBuilder rb;
 	private GameObject floors;
 	private int maxKeyLevel;
+
+
+
 
 	private enum keyNames {
 		RUSTY,
@@ -75,7 +79,7 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k, GameObject p) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k, GameObject p, Material[] exfm) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -89,6 +93,7 @@ public class World : MonoBehaviour {
 		miscellaneous = m;
 		key = k;
 		player = p;
+		extraFloorMats = exfm;
 
 
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
@@ -154,7 +159,6 @@ public class World : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
 	}
 	
 	// Update is called once per frame
@@ -1030,29 +1034,31 @@ public class World : MonoBehaviour {
 
 					}
 
-					// RANDOM LIGHT GENERATION
-					float lightOffset = 0.3f;
+					// RANDOM BARREL / CRATE GENERATION
 
 					for (int i = 0; i < 4; i++) {
 						bool validCell = true;
 						Cell tgtCell = cells [x, y, z];
+
+						int max = tgtCell.keyDepth == 0 ? 3 : 4;
+						Debug.Log("depth: " + tgtCell.keyDepth);
 						int r1 = Random.Range (0, 5);
-						int r2 = Random.Range (1, 3);
+						int r2 = Random.Range (1, max);
 
 						for (int j = 0; j < 4; j++) {
 							if (tgtCell.checkBorder (j) == b_type.DOOR)
 								validCell = false;
 						}
 						if (validCell) {
-							
+
+							float heightOffset = 0.6f;
 
 							if (r1 == 1 && tgtCell.cellType == c_type.ROOM) {
-								//float objYOffset = 
-								float rX = Random.Range (0, spacing);
-								float rZ = Random.Range (0, spacing);
+								float rX = Random.Range (-spacing/2, spacing/2) / 2;
+								float rZ = Random.Range (-spacing/2, spacing/2) / 2;
 
 								GameObject obj = (GameObject) Instantiate (miscellaneous[r2], 
-									new Vector3 (spacing * x + rX, 0.6f, spacing * z + rZ), 
+									new Vector3 (spacing * x + rX, heightOffset, spacing * z + rZ), 
 									Quaternion.Euler(0, 0, 0));
 								obj.transform.parent = tgtCell.cellObj.transform;
 								obj.transform.localScale *= scale;
@@ -1060,7 +1066,10 @@ public class World : MonoBehaviour {
 						}
 
 
+						// RANDOM LIGHT GENERATION
 
+						float lightOffset = 0.3f;
+					
 						if (r1 == 0) 
 						{
 							
@@ -1112,31 +1121,51 @@ public class World : MonoBehaviour {
 			}
 		}
 
-		//RANDOM KEY GENERATION AND PLACEMENT
+		// RANDOM KEY GENERATION AND PLACEMENT
+
 		Debug.Log("Max key level: " + maxKeyLevel);
 		for (int i = 0; i < maxKeyLevel; i++) {
 			List<Cell> currentKeyLevel = keyList [i];
 			int randomTargetKeyCell = Random.Range (0, currentKeyLevel.Count);
 			Cell keyCell = currentKeyLevel [randomTargetKeyCell];
 
-			float r1 = Random.Range(-spacing/2, spacing/2);
-			float r2 = Random.Range(-spacing/2, spacing/2);
+			//float r1 = Random.Range(-spacing/2, spacing/2);
+			//float r2 = Random.Range(-spacing/2, spacing/2);
 
 
 			if (debug)
 				keyCell.floor.GetComponent<MeshRenderer> ().material.color = new Color (1, 1, 0);
 
 			float yOffset = 0.01f;
+			int facing = 4;
+			for (int j = 0; j < 4; j++)
+			{
+				if (keyCell.checkBorder(j) == b_type.WALL)
+				{
+					facing = j;
+					break;
+				}
+			}
+
+			float offset = (spacing / 4);
+
+			float x = (facing == 1) ? spacing * keyCell.index[0] - offset : 
+					  (facing == 3) ? spacing * keyCell.index[0] + offset : 
+					  spacing * keyCell.index[0];
+
+			float z = (facing == 0) ? spacing * keyCell.index[2] - offset : 
+					  (facing == 2) ? spacing * keyCell.index[2] + offset : 
+					  spacing * keyCell.index[2];
+
 			GameObject newKey = (GameObject) Instantiate (key, 
-				new Vector3 (spacing * keyCell.index[0] + (r1 / 1.5f), 
-							 keyCell.index[1] * wallHeight + yOffset, 
-							 spacing * keyCell.index[2] + (r2 / 1.5f)), 
-									Quaternion.Euler(0, r1 + r2, 0));
+				new Vector3 (x, keyCell.index[1] * wallHeight + yOffset, z), 
+									Quaternion.Euler(0, facing * 90, 0));
 									newKey.transform.parent = keyCell.cellObj.transform;
 									newKey.transform.localScale *= scale;
-			newKey.GetComponent<Key>().keyLevel = i;
-			newKey.GetComponent<Key>().player = player.GetComponent<Player>();
-			newKey.GetComponent<Key> ().keyName = getKeyName((keyNames) i);
+			Key thisKey = newKey.GetComponentInChildren<Key>();
+			thisKey.keyLevel = i;
+			thisKey.player = player.GetComponent<Player>();
+			thisKey.keyName = getKeyName((keyNames) i);
 			newKey.name = "Key " + (i + 1);
 			newKey.transform.parent = keyCell.cellObj.transform;
 
@@ -1262,11 +1291,15 @@ public class World : MonoBehaviour {
 
 
 			//Floor tile changes
-			/*if (curCell.keyDepth >= 1)
+			if (curCell.keyDepth >= 1)
 			{
-				Material[] newMats = floor[1].GetComponent<MeshRenderer>().sharedMaterials;
-				curCell.floor.GetComponent<MeshRenderer>().sharedMaterials = newMats;
-			}*/
+				int newIndex = curCell.keyDepth;
+				if (newIndex > extraFloorMats.Length)
+					newIndex = extraFloorMats.Length;
+				
+				--newIndex;
+				curCell.floor.GetComponent<MeshRenderer>().material = extraFloorMats[newIndex];
+			}
 
 			if (debug) {
 				if (keyLevel == 1)

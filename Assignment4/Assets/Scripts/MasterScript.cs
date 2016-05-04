@@ -19,6 +19,7 @@ public class MasterScript : MonoBehaviour {
 	public GameObject[] door;
 	public GameObject[] corner;
 	public GameObject[] miscellaneous;
+	public Material[] extraFloorMats;
 
 
 
@@ -35,7 +36,7 @@ public class MasterScript : MonoBehaviour {
 		player.GetComponent<Player>().invincible = invincibility;
 
 		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, 
-			floor, wall, door, corner, miscellaneous, key, player);
+			floor, wall, door, corner, miscellaneous, key, player, extraFloorMats);
 
 
 
@@ -55,12 +56,12 @@ public class MasterScript : MonoBehaviour {
 			r2 = Random.Range (0, floorSize);
 		}
 
-		GameObject minorMonster = (GameObject) Instantiate (monster[3], w.cells[r1, 0, r2].pos, Quaternion.identity);
+		GameObject minorMonster = (GameObject) Instantiate (monster[randMonster+2], w.cells[r1, 0, r2].pos, Quaternion.identity);
 		minorMonster.name = "Minor Monster";
 		minorMonster.GetComponent<Monster>().player = player;
 		minorMonster.GetComponent<Monster>().floorSize = floorSize;
 		minorMonster.GetComponent<Monster>().w = w;
-		minorMonster.GetComponent<Monster> ().setExploreSpeed (1);
+		//minorMonster.GetComponent<Monster> ().setExploreSpeed (1);
 
 
 		r1 = Random.Range (0, floorSize);
@@ -70,12 +71,12 @@ public class MasterScript : MonoBehaviour {
 			r2 = Random.Range (0, floorSize);
 		}
 
-		GameObject minorMonster2 = (GameObject) Instantiate (monster[3], w.cells[r1, 0, r2].pos, Quaternion.identity);
+		GameObject minorMonster2 = (GameObject) Instantiate (monster[randMonster+2], w.cells[r1, 0, r2].pos, Quaternion.identity);
 		minorMonster2.name = "Minor Monster";
 		minorMonster2.GetComponent<Monster>().player = player;
 		minorMonster2.GetComponent<Monster>().floorSize = floorSize;
 		minorMonster2.GetComponent<Monster>().w = w;
-		minorMonster2.GetComponent<Monster> ().setExploreSpeed (1);
+		//minorMonster2.GetComponent<Monster> ().setExploreSpeed (1);
 
 		if (!enableCeilings)
 			RenderSettings.fog = false;
