@@ -5,19 +5,52 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 
+	public GUIStyle style;
+
 	public float interactDistance = 5.0f;
 	public bool invincible = false;
 	public bool isDead = false;
 	public Key[] keys = new Key[10];
 
+	[HideInInspector]
+	private string msg = "TEST";
+
+
+
 	private Camera camera;
 	private GameObject curTarget;
 	private GameObject curInterTarget;
 
+	private int msgDisplayTime = 120;
+
+	private int msgCounter = 0;
+	private bool isDisplayingMsg;
+
+	void OnGUI(){
+
+		if (isDisplayingMsg) {
+			if (msgCounter++ < msgDisplayTime) {
+				GUI.TextArea (new Rect (1, 1, Screen.width, Screen.height), msg, style);
+			}
+			else {
+				msg = "";
+				msgCounter = 0;
+				isDisplayingMsg = false;
+			}
+		}
+	}
+
+	public void DisplayMessage (string message) {
+		isDisplayingMsg = true;
+		Debug.Assert (isDisplayingMsg);
+		msg = message;
+		msgCounter = 0;
+	}
 
 	// Use this for initialization
 	void Start () {
 		camera = GetComponentInChildren<Camera>();
+		isDisplayingMsg = false;
 		//keys = new List<Key>(10);
 	}
 	

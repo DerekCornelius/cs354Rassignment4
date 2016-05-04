@@ -8,6 +8,7 @@ public class Monster : MonoBehaviour {
 	public AudioSource ambience;
 	public int floorSize;
 
+	public bool isMinorMonster;
 	public AudioClip huntSound;
 	public AudioClip attackSound;
 
@@ -36,13 +37,24 @@ public class Monster : MonoBehaviour {
 		nav.speed = exploreSpeed;
 
 	}
+
+	public void setHuntSpeed(float newSpd)
+	{
+		huntSpeed = newSpd;
+	}
+
+	public void setExploreSpeed(float newSpd)
+	{
+		exploreSpeed = newSpd;
+	}
 	
 	// Update is called once per frame
 	void Update () {
 		float playerDistance = Vector3.Distance(player.transform.position, this.transform.position);
 
 		// Set ambience to be louder the further the enemy is away
-		ambience.volume = Mathf.Clamp(playerDistance, 0, 1000) / 1000;
+		if (!isMinorMonster)
+			ambience.volume = Mathf.Clamp(playerDistance, 0, 1000) / 1000;
 
 		if (playerDistance <= detectRange && !huntMode)
 		{
@@ -56,7 +68,8 @@ public class Monster : MonoBehaviour {
 				aSrc.Play();
 				Debug.Log("Monster going into hunt mode");
 				huntMode = true;
-				nav.speed = huntSpeed;
+				if (!isMinorMonster)
+					nav.speed = huntSpeed;
 				nav.SetDestination(this.transform.position);
 			}
 

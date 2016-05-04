@@ -4,7 +4,7 @@ using System.Collections;
 public class Key : InteractableObject {
 
 	public int keyLevel = -1;
-
+	public string keyName = "Test key";
 	private bool taken = false;
 
 	public Key ()
@@ -22,7 +22,13 @@ public class Key : InteractableObject {
 		{
 			taken = true;
 			
-			Debug.Log("Adding key level " + keyLevel + " to player inventory");
+			//Debug.Log("Adding key level " + keyLevel + " to player inventory");
+			string pickupMsg = "You pick up a";
+			if (keyName.StartsWith("a") || keyName.StartsWith("e") || keyName.StartsWith("i") ||
+				keyName.StartsWith("o") || keyName.StartsWith("u"))
+				pickupMsg += "n";
+			pickupMsg += " " + keyName + " key.";
+			player.DisplayMessage (pickupMsg);
 			player.keys[keyLevel] = this;
 
 			// Disable mesh / graphic

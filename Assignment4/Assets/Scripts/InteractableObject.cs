@@ -66,7 +66,8 @@ public class InteractableObject : MonoBehaviour {
 					Key thisKey = player.keys[i];
 					if (thisKey != null && thisKey.keyLevel == keyRequired)
 					{
-						Debug.Log("Unlocking: " + keyRequired);
+						//Debug.Log("Unlocking: " + keyRequired);
+						player.DisplayMessage ("You unlocked the door with the " + thisKey.keyName + " key.");
 						keyFound = true;
 						isLocked = false;
 						aSrc.clip = aClips[4];
@@ -79,7 +80,9 @@ public class InteractableObject : MonoBehaviour {
 				{	
 					aSrc.clip = aClips[3];
 					aSrc.Play();
-					Debug.Log("Key required: " + keyRequired);
+					player.DisplayMessage ("The door is locked.");
+
+					//Debug.Log("Key required: " + keyRequired);
 				}
 
 				isInteracting = false;

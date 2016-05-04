@@ -29,15 +29,17 @@ public class MasterScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, 
-					   floor, wall, door, corner, miscellaneous, key, player);
-
 		//Initialize player
 		player = (GameObject) Instantiate (player, new Vector3 (0, 1, 0), Quaternion.identity);
 		player.name = "Player";
 		player.GetComponent<Player>().invincible = invincibility;
 
-		int randMonster = Random.Range(0, monster.Length);
+		w = new World (enableCeilings, scale, floorSize, numFloors, ceiling, 
+			floor, wall, door, corner, miscellaneous, key, player);
+
+
+
+		int randMonster = Random.Range(0, 2);
 		//Initialize monster
 		GameObject thisMonster = (GameObject) Instantiate (monster[randMonster], w.cells[floorSize-1, 0, floorSize-1].pos, Quaternion.identity);
 		//GameObject thisMonster = (GameObject) Instantiate (monster[randMonster], w.cells[2, 0, 2].pos, Quaternion.identity);
@@ -45,6 +47,35 @@ public class MasterScript : MonoBehaviour {
 		thisMonster.GetComponent<Monster>().player = player;
 		thisMonster.GetComponent<Monster>().floorSize = floorSize;
 		thisMonster.GetComponent<Monster>().w = w;
+
+		int r1 = Random.Range (0, floorSize);
+		int r2 = Random.Range (0, floorSize);
+		while (w.cells [r1, 0, r2].keyDepth != 1) {
+			r1 = Random.Range (0, floorSize);
+			r2 = Random.Range (0, floorSize);
+		}
+
+		GameObject minorMonster = (GameObject) Instantiate (monster[3], w.cells[r1, 0, r2].pos, Quaternion.identity);
+		minorMonster.name = "Minor Monster";
+		minorMonster.GetComponent<Monster>().player = player;
+		minorMonster.GetComponent<Monster>().floorSize = floorSize;
+		minorMonster.GetComponent<Monster>().w = w;
+		minorMonster.GetComponent<Monster> ().setExploreSpeed (1);
+
+
+		r1 = Random.Range (0, floorSize);
+		r2 = Random.Range (0, floorSize);
+		while (w.cells [r1, 0, r2].keyDepth != 2) {
+			r1 = Random.Range (0, floorSize);
+			r2 = Random.Range (0, floorSize);
+		}
+
+		GameObject minorMonster2 = (GameObject) Instantiate (monster[3], w.cells[r1, 0, r2].pos, Quaternion.identity);
+		minorMonster2.name = "Minor Monster";
+		minorMonster2.GetComponent<Monster>().player = player;
+		minorMonster2.GetComponent<Monster>().floorSize = floorSize;
+		minorMonster2.GetComponent<Monster>().w = w;
+		minorMonster2.GetComponent<Monster> ().setExploreSpeed (1);
 
 		if (!enableCeilings)
 			RenderSettings.fog = false;

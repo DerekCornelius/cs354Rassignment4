@@ -26,6 +26,34 @@ public class World : MonoBehaviour {
 	private GameObject floors;
 	private int maxKeyLevel;
 
+	private enum keyNames {
+		RUSTY,
+		COPPER,
+		IRON,
+		BRONZE,
+		STEEL,
+		SILVER,
+		AMBER,
+		GOLDEN,
+		ANTIQUE,
+		ORNATE,
+		CRYSTALLINE,
+		OBSIDIAN,
+		GARNET,
+		RUBY,
+		SAPPHIRE,
+		EMERALD,
+		OPAL,
+		LAPIS,
+		DIAMOND,
+		ETCHED,
+		PUBLIC,
+		PIANO,
+		FLORIDA,
+		EGGSHAPED
+	};
+
+
 	/*
 	 * Public Methods:
 	 * 
@@ -75,12 +103,15 @@ public class World : MonoBehaviour {
 
 		rb = new RoomBuilder(floorSize, this);
 		//sample rooms
+		//rb.buildRoom(r_type.THREE_BY_THREE, 0);
+		/*
 		rb.buildXByZRoom (0, 5, 3);
 		rb.buildXByZRoom (0, 1, 5);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildXByZRoom (0, 2, 2);
+		*/
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
@@ -108,7 +139,8 @@ public class World : MonoBehaviour {
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 		rb.buildRoom (r_type.THREE_BY_THREE, 0);
 
-		removeWalls (floorSize - 1, 0, floorSize - 1, 4);
+
+		//removeWalls (floorSize - 1, 0, floorSize - 1, 4);
 
 		EnclosureCheck (false);
 
@@ -226,6 +258,36 @@ public class World : MonoBehaviour {
 
 	}
 
+	public void ApplyColor(GameObject obj, Color newColor, bool applyToChildren = true)
+	{
+		Transform[] allChildren = obj.GetComponentsInChildren<Transform>();
+		MeshRenderer msh = obj.GetComponent<MeshRenderer>();
+		Material[] mats;
+
+		// Color all children
+		if (applyToChildren)
+			foreach (Transform child in allChildren) 
+			{
+				MeshRenderer cMsh = child.gameObject.GetComponent<MeshRenderer>();
+
+				if (cMsh != null)
+				{
+					mats = cMsh.materials;
+					foreach (Material mat in mats)
+						mat.color = newColor;
+				}
+
+			}
+
+		// Color main obj
+		if (msh != null)
+		{
+			mats = msh.materials;
+			foreach (Material mat in mats)
+				mat.color = newColor;
+		}
+	}
+
 
 	public void removeWalls(int tX, int tY, int tZ, int wallNum, bool debug = false) { //4 means ALL walls
 
@@ -234,7 +296,8 @@ public class World : MonoBehaviour {
 		Cell target = cells [tX, tY, tZ];
 		if ((wallNum == 0 || wallNum == 4) && tZ != 0 && target.walls[0] != null) {
 			if (debug) {
-				target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+				ApplyColor (target.walls [0], new Color(0, .5f, .5f));
+				//target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [0]);
 				target.walls [0] = cells [tX, tY, tZ - 1].walls [2] = null;
@@ -242,7 +305,8 @@ public class World : MonoBehaviour {
 		}
 		if ((wallNum == 1 || wallNum == 4) && tX != 0 && target.walls[1] != null) {
 			if (debug) {
-				target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+				ApplyColor (target.walls [1], new Color(0, .5f, .5f));
+				//target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [1]);
 				target.walls [1] = cells [tX - 1, tY, tZ].walls [3] = null;
@@ -250,7 +314,8 @@ public class World : MonoBehaviour {
 		}
 		if ((wallNum == 2 || wallNum == 4) && tZ < floorSize - 1 && target.walls[2] != null) {
 			if (debug) {
-				target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+				ApplyColor (target.walls [2], new Color(0, .5f, .5f));
+				//target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [2]);
 				target.walls [2] = cells [tX, tY, tZ + 1].walls [0] = null;
@@ -258,7 +323,8 @@ public class World : MonoBehaviour {
 		}
 		if ((wallNum == 3 || wallNum == 4) && tX < floorSize - 1 && target.walls[3] != null) {
 			if (debug) {
-				target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
+				ApplyColor (target.walls [3], new Color(0, .5f, .5f));
+				//target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (0, .5f, .5f);
 			} else {
 				GameObject.Destroy (target.walls [3]);
 				target.walls [3] = cells [tX + 1, tY, tZ].walls [1] = null;
@@ -281,7 +347,8 @@ public class World : MonoBehaviour {
 			target.walls [0].transform.localScale *= scale;
 			target.walls [0].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
 
-			if (debug) target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+			if (debug) ApplyColor (target.walls [0], new Color(1, .5f, .5f));
+				//target.walls [0].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
 
@@ -293,7 +360,8 @@ public class World : MonoBehaviour {
 			target.walls[1].transform.localScale *= scale;
 			target.walls[1].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
 
-			if (debug) target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+			if (debug) ApplyColor (target.walls [1], new Color(1, .5f, .5f));
+				//target.walls [1].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
 
@@ -305,7 +373,8 @@ public class World : MonoBehaviour {
 			target.walls[2].transform.localScale *= scale;
 			target.walls[2].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
 
-			if (debug) target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+			if (debug) ApplyColor (target.walls [2], new Color(1, .5f, .5f));
+				//target.walls [2].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
 
@@ -317,7 +386,8 @@ public class World : MonoBehaviour {
 			target.walls[3].transform.localScale *= scale;
 			target.walls[3].name = "Custom wall: " + tX + ", " + tY + ", " + tZ + ", " + wallNum;
 
-			if (debug) target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
+			if (debug) ApplyColor (target.walls [3], new Color(1, .5f, .5f));
+				//target.walls [3].GetComponent<MeshRenderer> ().material.color = new Color (1, .5f, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
 	}
@@ -337,7 +407,8 @@ public class World : MonoBehaviour {
 			target.doors [0].transform.localScale *= scale;
 			target.doors [0].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
 
-			if (debug) target.doors [0].GetComponent<MeshRenderer> ().material.color = new Color (0, 1f, 1f);
+			if (debug) ApplyColor (target.doors [0], new Color(0, 1f, .5f));
+				//target.doors [0].GetComponent<MeshRenderer> ().material.color = new Color (0, 1f, 1f);
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [0]);
 
@@ -349,7 +420,8 @@ public class World : MonoBehaviour {
 			target.doors[1].transform.localScale *= scale;
 			target.doors[1].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
 
-			if (debug) target.doors [1].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+			if (debug) ApplyColor (target.doors [1], new Color(0, 1f, .5f));
+				//target.doors [1].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [1]);
 
@@ -361,7 +433,8 @@ public class World : MonoBehaviour {
 			target.doors[2].transform.localScale *= scale;
 			target.doors[2].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
 
-			if (debug) target.doors [2].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+			if (debug) ApplyColor (target.doors [2], new Color(0, 1f, .5f));
+				//target.doors [2].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tZ + ", " + target.walls [2]);
 
@@ -373,7 +446,8 @@ public class World : MonoBehaviour {
 			target.doors[3].transform.localScale *= scale;
 			target.doors[3].name = "Custom door: " + tX + ", " + tY + ", " + tZ + ", " + doorNum;
 
-			if (debug) target.doors [3].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
+			if (debug) ApplyColor (target.doors [3], new Color(0, 1f, .5f));
+				//target.doors [3].GetComponent<MeshRenderer> ().material.color = new Color (0, 1, .5f);
 		} //else
 		//Debug.Log (wallNum + ", " + tX + ", " + target.walls [3]);
 	}
@@ -1062,9 +1136,88 @@ public class World : MonoBehaviour {
 									newKey.transform.localScale *= scale;
 			newKey.GetComponent<Key>().keyLevel = i;
 			newKey.GetComponent<Key>().player = player.GetComponent<Player>();
+			newKey.GetComponent<Key> ().keyName = getKeyName((keyNames) i);
 			newKey.name = "Key " + (i + 1);
 			newKey.transform.parent = keyCell.cellObj.transform;
+
 		}
+	}
+
+	private string getKeyName(keyNames k) {
+		switch (k) {
+		case keyNames.RUSTY:
+			return "rusty";
+			break;
+		case keyNames.IRON:
+			return "iron";
+			break;
+		case keyNames.COPPER:
+			return "copper";
+			break;
+		case keyNames.BRONZE:
+			return "bronze";
+			break;
+		case keyNames.STEEL:
+			return "steel";
+			break;
+		case keyNames.SILVER:
+			return "silver";
+			break;
+		case keyNames.AMBER:
+			return "amber";
+			break;
+		case keyNames.GOLDEN:
+			return "golden";
+			break;
+		case keyNames.ANTIQUE:
+			return "antique";
+			break;
+		case keyNames.ORNATE:
+			return "ornate";
+			break;
+		case keyNames.CRYSTALLINE:
+			return "crystalline";
+			break;
+		case keyNames.OBSIDIAN:
+			return "obsidian";
+			break;
+		case keyNames.GARNET:
+			return "garnet";
+			break;
+		case keyNames.RUBY:
+			return "ruby";
+			break;
+		case keyNames.SAPPHIRE:
+			return "sapphire";
+			break;
+		case keyNames.EMERALD:
+			return "emerald";
+			break;
+		case keyNames.OPAL:
+			return "opal";
+			break;
+		case keyNames.LAPIS:
+			return "lapis";
+			break;
+		case keyNames.DIAMOND:
+			return "diamond";
+			break;
+		case keyNames.ETCHED:
+			return "etched";
+			break;
+		case keyNames.PUBLIC:
+			return "public";
+			break;
+		case keyNames.PIANO:
+			return "piano";
+			break;
+		case keyNames.EGGSHAPED:
+			return "egg-shaped";
+			break;
+		default:
+			//"\"beyond-the-predefined-number-of-named-keys\"";
+			return "beyond-the-predefined-number-of-named-keys";
+		};
 	}
 
 	//key placement algorithm
@@ -1271,6 +1424,7 @@ public class World : MonoBehaviour {
 		return Qi;
 
 	}
+
 
 } //end of class
 
