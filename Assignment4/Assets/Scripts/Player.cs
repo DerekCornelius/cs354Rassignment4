@@ -10,6 +10,8 @@ public class Player : MonoBehaviour {
 	public float interactDistance = 5.0f;
 	public bool invincible = false;
 	public bool isDead = false;
+	public bool gameIsEnded = false;
+
 	public Key[] keys = new Key[10];
 
 	[HideInInspector]
@@ -17,7 +19,7 @@ public class Player : MonoBehaviour {
 
 
 
-	private Camera camera;
+	public Camera camera;
 	private GameObject curTarget;
 	private GameObject curInterTarget;
 
@@ -27,7 +29,31 @@ public class Player : MonoBehaviour {
 	private bool isDisplayingMsg;
 	private Quaternion deathRot;
 
+	// FadeInOut
+
+	/*Texture2D fadeTexture;
+	float fadeSpeed = 0.2f;
+	int drawDepth = -1000;
+
+	private float alpha = 1.0f; 
+	private float fadeDir = -1f;
+
+	bool fading = true;*/
+
+
 	void OnGUI(){
+
+		/*if (fading) {
+			alpha += fadeDir * fadeSpeed * Time.deltaTime;  
+			alpha = Mathf.Clamp01(alpha);   
+
+			GUI.color = new Color(0, 0, 0, alpha);
+
+			GUI.depth = drawDepth;
+
+			GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), fadeTexture);
+		}*/
+
 
 		if (isDisplayingMsg) {
 			if (msgCounter++ < msgDisplayTime) {
@@ -41,17 +67,20 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	public void DisplayMessage (string message) {
+	public void DisplayMessage (string message, int fontSize = 12, int displayTime = 120) {
 		isDisplayingMsg = true;
 		Debug.Assert (isDisplayingMsg);
 		msg = message;
 		msgCounter = 0;
+		msgDisplayTime = displayTime;
+		style.fontSize = fontSize;
 	}
 
 	// Use this for initialization
 	void Start () {
 		camera = GetComponentInChildren<Camera>();
 		isDisplayingMsg = false;
+		//GetComponent<GUITexture>().pixelInset = new Rect(0f, 0f, Screen.width, Screen.height);
 		//keys = new List<Key>(10);
 	}
 	
@@ -172,6 +201,7 @@ public class Player : MonoBehaviour {
 			camera.transform.parent = null;
 			this.enabled = false;
 			isDead = true;
+			gameIsEnded = true;
 		}
 	}
 

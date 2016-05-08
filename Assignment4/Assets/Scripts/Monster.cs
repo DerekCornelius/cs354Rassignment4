@@ -14,7 +14,7 @@ public class Monster : MonoBehaviour {
 	public float exploreSpeed = 2f;
 
 	private float killRange = 2f;
-	private float detectRange = 20f;
+	public float detectRange = 20f;
 	private Animator anim;
 	private NavMeshAgent nav;
 	private AudioSource aSrc;
@@ -55,7 +55,8 @@ public class Monster : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float playerDistance = Vector3.Distance(player.transform.position, this.transform.position);
+		float playerDistance = Vector2.Distance( new Vector2(player.transform.position.x, player.transform.position.z), 
+												 new Vector2(this.transform.position.x, this.transform.position.z));
 
 		// Set ambience to be louder the further the enemy is away
 		if (!isMinorMonster)

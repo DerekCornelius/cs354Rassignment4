@@ -14,6 +14,7 @@ public class InteractableObject : MonoBehaviour {
 	// 4 : unlocked
 
 	public bool isDoor;
+	public Camera endCam;
 
 	[HideInInspector]
 	public bool isLocked;
@@ -27,6 +28,13 @@ public class InteractableObject : MonoBehaviour {
 	[HideInInspector]
 	public Player player;
 
+	[HideInInspector]
+	public MasterScript masterScript;
+
+	[HideInInspector]
+	public bool isMasterDoor = false;
+
+	private bool gatesDown = false;
 	private bool isToggled = false;
 	private float DoorOpenAngle = 90f;
 	private float smooth = 2.0f;
@@ -43,10 +51,17 @@ public class InteractableObject : MonoBehaviour {
 		{
 			//Debug.Log("I am a door being interacted with");
 
+
+
 			if (!isLocked)
 			{
 				if (!isToggled)
 				{
+					if (isMasterDoor && !gatesDown) {
+						aSrc.volume = 1;
+						aSrc.clip = aClips[0];
+						aSrc.Play();
+					}
 					//int r1 = Random.Range(0, 2);
 					//aSrc.clip = aClips[r1];
 					//aSrc.Play();
@@ -60,6 +75,9 @@ public class InteractableObject : MonoBehaviour {
 			else
 			{
 				bool keyFound = false;
+
+
+					
 
 				for (int i = 0; i < player.keys.Length; i++)
 				{
@@ -80,8 +98,10 @@ public class InteractableObject : MonoBehaviour {
 				{	
 					aSrc.clip = aClips[3];
 					aSrc.Play();
-					player.DisplayMessage ("The door is locked.");
-
+					if (!isMasterDoor)
+						player.DisplayMessage ("The door is locked.");
+					else
+						player.DisplayMessage ("This door has a masterfully created lock on it.");
 					//Debug.Log("Key required: " + keyRequired);
 				}
 
@@ -105,7 +125,7 @@ public class InteractableObject : MonoBehaviour {
 
 			// DOOR UPDATE INTERACTIONS	
 
-			if (isDoor && !isLocked)
+			if (isDoor && !isLocked && !isMasterDoor || (!isLocked && isMasterDoor && gatesDown))
 			{
 				Quaternion target;
 
@@ -121,11 +141,34 @@ public class InteractableObject : MonoBehaviour {
 					isToggled = !isToggled;	
 				}
 
+				if (isMasterDoor && !player.gameIsEnded) {
+					Debug.Log ("Game end");
+					player.camera.enabled = false;
+					player.gameIsEnded = true;
+					Instantiate (endCam);
+					player.DisplayMessage ("You escaped alive.", 24, 1000);
+				}
 
 			}
-			else
+			else if (!isLocked && isMasterDoor && !gatesDown)
 			{
 				
+				Transform[] children = this.transform.parent.parent.parent.GetComponentsInChildren<Transform> ();
+				Vector3 target = new Vector3 (0, -1f, 0);
+
+				foreach (Transform child in children) {
+					//Debug.Log (child.gameObject.name);
+					if (child.gameObject.CompareTag("Gate")) {
+						child.localPosition = Vector3.Slerp(child.localPosition, target, Time.deltaTime);
+					}
+
+					if (child.localPosition.y <= target.y + 0.1f) {
+						Debug.Log ("Gates down");
+						gatesDown = true;
+						isInteracting = false;
+					}
+						
+				}
 			}
 
 		}

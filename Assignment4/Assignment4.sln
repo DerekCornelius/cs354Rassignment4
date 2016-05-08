@@ -7,10 +7,6 @@ Project("{15BD4745-E12A-2D31-07C6-423AB7DF984B}") = "Assignment4", "Assembly-CSh
 EndProject
 Project("{15BD4745-E12A-2D31-07C6-423AB7DF984B}") = "Assignment4", "Assembly-CSharp-Editor.csproj", "{7A668C3E-4701-CF86-8F47-EDFDC8C4122A}"
 EndProject
-Project("{15BD4745-E12A-2D31-07C6-423AB7DF984B}") = "Assignment4", "Assembly-UnityScript-firstpass.unityproj", "{F22BA578-F965-DCEA-FF89-9682889F6D0A}"
-EndProject
-Project("{15BD4745-E12A-2D31-07C6-423AB7DF984B}") = "Assignment4", "Assembly-UnityScript.unityproj", "{700BFC39-E095-DFCA-A526-A363A32CFA88}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,14 +25,6 @@ Global
 		{7A668C3E-4701-CF86-8F47-EDFDC8C4122A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A668C3E-4701-CF86-8F47-EDFDC8C4122A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A668C3E-4701-CF86-8F47-EDFDC8C4122A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F22BA578-F965-DCEA-FF89-9682889F6D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F22BA578-F965-DCEA-FF89-9682889F6D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F22BA578-F965-DCEA-FF89-9682889F6D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F22BA578-F965-DCEA-FF89-9682889F6D0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{700BFC39-E095-DFCA-A526-A363A32CFA88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{700BFC39-E095-DFCA-A526-A363A32CFA88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{700BFC39-E095-DFCA-A526-A363A32CFA88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{700BFC39-E095-DFCA-A526-A363A32CFA88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

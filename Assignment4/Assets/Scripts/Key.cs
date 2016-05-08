@@ -31,6 +31,15 @@ public class Key : InteractableObject {
 			player.DisplayMessage (pickupMsg);
 			player.keys[keyLevel] = this;
 
+			if (keyLevel == 0)
+				masterScript.SpawnMinorMonster (1);
+
+			if (keyLevel == 1)
+				masterScript.SpawnMinorMonster (2);
+
+			if (keyLevel == 2)
+				masterScript.SpawnHunter();
+
 			// Disable mesh / graphic
 			MeshRenderer msh = this.transform.GetComponent<MeshRenderer>();
 			if (msh != null)

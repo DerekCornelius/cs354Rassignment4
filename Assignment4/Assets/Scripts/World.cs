@@ -26,7 +26,8 @@ public class World : MonoBehaviour {
 	private RoomBuilder rb;
 	private GameObject floors;
 	private int maxKeyLevel;
-
+	private InteractableObject masterDoor;
+	private MasterScript masterScript;
 
 
 
@@ -79,7 +80,8 @@ public class World : MonoBehaviour {
 	}
 
 	//basic constructor: start code goes here
-	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w, GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k, GameObject p, Material[] exfm) {
+	public World(bool eC, float s, int fS, int nF, GameObject[] c, GameObject[] f, GameObject[] w,
+		GameObject[] d, GameObject[] cn, GameObject[] m, GameObject k, GameObject p, Material[] exfm, MasterScript ms) {
 		enableCeilings = eC;
 		scale = s;
 		floorSize = fS;
@@ -94,7 +96,7 @@ public class World : MonoBehaviour {
 		key = k;
 		player = p;
 		extraFloorMats = exfm;
-
+		masterScript = ms;
 
 		Debug.Log ("Creating new Cell array: [" + floorSize + "][" + numFloors + "][" + floorSize + "]\n");
 		cells = new Cell[floorSize, numFloors, floorSize];
@@ -197,7 +199,7 @@ public class World : MonoBehaviour {
 
 			float yOffset = ((wallHeight / 2) * scale) + (nY * wallHeight * scale); 
 
-			if (curCell.walls [0] == null) {
+			if (curCell.walls [0] == null && (nX != 0 && nZ != 0)) {
 				Cell next = cells [nX, nY, nZ - 1];
 				if (next.depth == -1) {
 					next.depth = curCell.depth + 1;
@@ -343,7 +345,7 @@ public class World : MonoBehaviour {
 		Cell target = cells [tX, tY, tZ];
 		float yOffset = ((wallHeight / 2) * scale) + (tY * wallHeight * scale); 
 
-		if ((wallNum == 0 || wallNum == 4) && tZ >= 0 && target.walls [0] == null) {
+		if ((wallNum == 0 || wallNum == 4) && tZ > 0 && target.walls [0] == null) {
 			target.walls [0] = cells [tX, tY, tZ - 1].walls [2] = (GameObject)Instantiate (wall [0], 
 				new Vector3 (spacing * tX, yOffset, spacing * tZ - (spacing / 2)), 
 				Quaternion.Euler (0, 0, 0));
@@ -467,6 +469,7 @@ public class World : MonoBehaviour {
 
 			floors = new GameObject();
 			floors.name = "Floor " + y;
+			floors.transform.parent = masterScript.gameObject.transform;
 
 
 			for (int x = 0; x < floorSize; x++) {
@@ -490,12 +493,27 @@ public class World : MonoBehaviour {
 					float yOffset = ((wallHeight / 2) * scale) + (y * wallHeight * scale); 
 
 					// Create 0 degree walls on borders
-					if (z == 0) {
-						cell.walls[0] = (GameObject) Instantiate (wall[0], 
+					if (z == 0 && x != 0) {
+						cell.walls [0] = (GameObject)Instantiate (wall [0], 
 							new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2)), 
-							Quaternion.Euler(0, 0, 0));
-						cell.walls[0].transform.parent = cellObj.transform;
-						cell.walls[0].transform.localScale *= scale;
+							Quaternion.Euler (0, 0, 0));
+						cell.walls [0].transform.parent = cellObj.transform;
+						cell.walls [0].transform.localScale *= scale;
+					} 
+					else if (z == 0 && x == 0) {
+						cell.doors [0] = (GameObject)Instantiate (door [2], 
+							new Vector3 (spacing * x, yOffset, spacing * z - (spacing / 2)), 
+							Quaternion.Euler (0, 0, 0));
+						cell.doors [0].transform.parent = cellObj.transform;
+						cell.doors [0].transform.localScale *= scale;
+						masterDoor = cell.doors [0].GetComponent<InteractableObject>();
+						if (masterDoor == null)
+						{
+							masterDoor = cell.doors [0].GetComponentInChildren<InteractableObject>();
+						}
+						masterDoor.isMasterDoor = true;
+						masterDoor.isLocked = true;
+						masterDoor.player = player.GetComponent<Player>();
 					}
 
 					// Create 90 degree walls on borders
@@ -749,9 +767,13 @@ public class World : MonoBehaviour {
 							start.floor.GetComponent<MeshRenderer>().material.color = new Color (1, 0, 1);
 
 						possibleDoorCells [0] = cells [xCoord, y, zCoord];
+						int counter = 30;
 
 						while (possibleEnclosure)
 						{
+							if (counter-- <= 0)
+								break;
+							
 							if ((xCoord != x || zCoord != z) && debug)
 								cells[xCoord, y, zCoord].floor.GetComponent<MeshRenderer>().material.color = new Color (0, 1, 0);
 
@@ -1034,42 +1056,82 @@ public class World : MonoBehaviour {
 
 					}
 
+
+
+					// DEPTH 4 FLOOR REPLACEMENT
+					Cell tgtCell = cells [x, y, z];
+
+					if (tgtCell.keyDepth >= 3) {
+						int rNum = Random.Range (0, 5);
+						if (rNum == 0) {
+							tgtCell.floor.GetComponent<MeshRenderer> ().enabled = false;
+							float floorGateOffset = 2.5f;
+							GameObject floorGate = (GameObject) Instantiate (floor[1], 
+								new Vector3 (spacing * x + floorGateOffset, wallHeight * scale * y, spacing * z), 
+								floor[1].transform.rotation);
+							floorGate.transform.parent = tgtCell.cellObj.transform;
+							floorGate.transform.localScale *= scale;
+						}
+						
+					}
+
+
+
 					// RANDOM BARREL / CRATE GENERATION
 
-					for (int i = 0; i < 4; i++) {
-						bool validCell = true;
-						Cell tgtCell = cells [x, y, z];
+					bool validCell = true;
 
+
+					Debug.Log("depth: " + tgtCell.keyDepth);
+
+
+					for (int j = 0; j < 4; j++) {
+						if (tgtCell.checkBorder (j) == b_type.DOOR)
+							validCell = false;
+					}
+
+					int r1 = Random.Range (0, 2);
+
+					if (validCell) {
+						
 						int max = tgtCell.keyDepth == 0 ? 3 : 4;
-						Debug.Log("depth: " + tgtCell.keyDepth);
-						int r1 = Random.Range (0, 5);
 						int r2 = Random.Range (1, max);
 
-						for (int j = 0; j < 4; j++) {
-							if (tgtCell.checkBorder (j) == b_type.DOOR)
-								validCell = false;
+						float heightOffset = 0.6f;
+
+						if (tgtCell.keyDepth < 3 && r1 == 1 && tgtCell.cellType == c_type.ROOM) {
+							float rX = Random.Range (-spacing / 2, spacing / 2) / 2;
+							float rZ = Random.Range (-spacing / 2, spacing / 2) / 2;
+
+							GameObject obj = (GameObject)Instantiate (miscellaneous [r2], 
+								new Vector3 (spacing * x + rX, heightOffset, spacing * z + rZ), 
+								Quaternion.Euler (0, 0, 0));
+							obj.transform.parent = tgtCell.cellObj.transform;
+							obj.transform.localScale *= scale;
+						} 
+						else if (tgtCell.keyDepth >= 3 && tgtCell.cellType == c_type.ROOM){
+							r2 = Random.Range (4, 6);
+							float rX = Random.Range (-spacing / 2, spacing / 2) / 2;
+							float rZ = Random.Range (-spacing / 2, spacing / 2) / 2;
+							GameObject obj = (GameObject)Instantiate (miscellaneous [r2], 
+								new Vector3 (spacing * x + rX, 0.1f, spacing * z + rZ), 
+								Quaternion.Euler (0, 0, 0));
+							obj.transform.parent = tgtCell.cellObj.transform;
+							obj.transform.localScale *= scale;
 						}
-						if (validCell) {
+					}
 
-							float heightOffset = 0.6f;
 
-							if (r1 == 1 && tgtCell.cellType == c_type.ROOM) {
-								float rX = Random.Range (-spacing/2, spacing/2) / 2;
-								float rZ = Random.Range (-spacing/2, spacing/2) / 2;
+						
+						
 
-								GameObject obj = (GameObject) Instantiate (miscellaneous[r2], 
-									new Vector3 (spacing * x + rX, heightOffset, spacing * z + rZ), 
-									Quaternion.Euler(0, 0, 0));
-								obj.transform.parent = tgtCell.cellObj.transform;
-								obj.transform.localScale *= scale;
-							}
-						}
-
+					for (int i = 0; i < 4; i++) {
+						
 
 						// RANDOM LIGHT GENERATION
 
 						float lightOffset = 0.3f;
-					
+						
 						if (r1 == 0) 
 						{
 							
@@ -1080,6 +1142,7 @@ public class World : MonoBehaviour {
 									Quaternion.Euler(0, 0, 0));
 								torch.transform.parent = tgtCell.cellObj.transform;
 								torch.transform.localScale *= scale;
+								break;
 							}
 
 							if (i == 1 && tgtCell.checkBorder(i) == b_type.WALL) {
@@ -1088,6 +1151,7 @@ public class World : MonoBehaviour {
 									Quaternion.Euler(0, 90, 0));
 								torch.transform.parent = tgtCell.cellObj.transform;
 								torch.transform.localScale *= scale;
+								break;
 							}
 
 							if (i == 2 && tgtCell.checkBorder(i) == b_type.WALL) {
@@ -1096,6 +1160,7 @@ public class World : MonoBehaviour {
 									Quaternion.Euler(0, 180, 0));
 								torch.transform.parent = tgtCell.cellObj.transform;
 								torch.transform.localScale *= scale;
+								break;
 							}
 
 							if (i == 3 && tgtCell.checkBorder(i) == b_type.WALL) {
@@ -1104,6 +1169,7 @@ public class World : MonoBehaviour {
 									Quaternion.Euler(0, 270, 0));
 								torch.transform.parent = tgtCell.cellObj.transform;
 								torch.transform.localScale *= scale;
+								break;
 							}
 
 						}
@@ -1123,6 +1189,7 @@ public class World : MonoBehaviour {
 
 		// RANDOM KEY GENERATION AND PLACEMENT
 
+		masterDoor.keyRequired = maxKeyLevel - 1;
 		Debug.Log("Max key level: " + maxKeyLevel);
 		for (int i = 0; i < maxKeyLevel; i++) {
 			List<Cell> currentKeyLevel = keyList [i];
@@ -1165,7 +1232,11 @@ public class World : MonoBehaviour {
 			Key thisKey = newKey.GetComponentInChildren<Key>();
 			thisKey.keyLevel = i;
 			thisKey.player = player.GetComponent<Player>();
-			thisKey.keyName = getKeyName((keyNames) i);
+			thisKey.masterScript = masterScript;
+			if (i != maxKeyLevel - 1)
+				thisKey.keyName = getKeyName((keyNames) i);
+			else
+				thisKey.keyName = "Master";
 			newKey.name = "Key " + (i + 1);
 			newKey.transform.parent = keyCell.cellObj.transform;
 
@@ -1330,13 +1401,13 @@ public class World : MonoBehaviour {
 
 
 			b_type n = curCell.checkBorder (0);
-			if (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE) {
+			if ( (nX != 0 && nZ != 0) && (((n == b_type.DOOR) && (curCell.depth < (LOCK_DEPTH * keyLevel))) || n == b_type.NONE)) {
 				Cell next = cells [nX, nY, nZ - 1];
 				if (next.keyDepth == -1) {
 					next.keyDepth = curCell.keyDepth;
 					Q.Enqueue (next);
 				}
-			} else if (n == b_type.DOOR) {
+			} else if (n == b_type.DOOR && (nX != 0 && nZ != 0)) {
 				Cell next = cells[nX, nY, nZ - 1];
 				if (next.keyDepth == -1) {
 
